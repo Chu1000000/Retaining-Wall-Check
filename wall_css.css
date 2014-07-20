@@ -1,0 +1,49 @@
+body, article, nav, pre {
+	font-family: arial;
+}
+
+aside {
+	display:none;
+	width: 90%;
+	margin: 10px;
+	padding: 10px;
+}
+
+#input {
+	display:none;
+}
+
+#output {
+	display:none;
+}
+
+nav {
+	width:45%;
+}
+
+span {
+	width:100%;
+}
+
+#sketch {
+	width: 45%;
+	height: 100%;
+	position:fixed;
+	top: 0px;
+	right: 0px;
+}
+
+
+.form {
+	width:100%;
+}
+
+.form input {
+	width:100%;
+	font-size:medium;
+}
+
+.form select {
+	width:100%;
+	font-size:medium;
+}

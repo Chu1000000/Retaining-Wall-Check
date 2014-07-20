@@ -1,0 +1,340 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>Retaining Wall Checks</title>
+	<meta name="description" content="Calculation checks for retaining wall design">
+	<meta name="author" content="Anthony Chu">
+
+	<link rel="stylesheet" href="wall_css.css">
+
+	<!--[if lt IE 9]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+
+<body>
+<script src="jquery.js"></script>
+
+<!-- Javascript check ......................................................... -->
+<div id="js">
+	Please enable javascript
+</div>
+
+<div id="error">
+</div>
+
+<script>
+function erroroutput(msg)
+{
+//	$("#error").html($("#error").html() + "<br />" + msg);
+}
+</script>
+
+<!-- Input ................................................................ -->
+
+<nav id="input" style="display:none;">
+
+<article id="wall">
+	<h2>Wall Construction</h2>
+	<pre>Stage 1 of 4</pre>
+
+	<p>Dimensions and construction information of the retaining wall</p>
+
+	<section class="form">
+
+	Stem Height: <input type="text" id="stem_height" value=1000></input>
+	Stem Thickness: <input type="text" id="stem_thickness" value=100></input>
+
+	Toe Length: <input type="text" id="toe_length" value=100></input>
+	Heel Length: <input type="text" id="heel_length" value=100></input>
+	
+	Base Thickness: <input type="text" id="base_thickness" value=100></input>
+
+	Shear Key: <select id="shear_key"><option value="no">No</option><option value="yes">Yes</option></select>
+	<aside id="shear_key_yes">
+	Shear Key Height: <input type="text" id="shear_key_height" value=0></input>
+	Shear Key Thickness: <input type="text" id="shear_key_thickness" value=0></input>
+	</aside>
+
+	<script>
+
+	$("#shear_key").change(function(){
+		if ($("#shear_key").val() == 'yes')
+		{
+			$("#shear_key_yes")[0].style.display = "block";
+		}
+		else
+		{
+			$("#shear_key_yes")[0].style.display = "none";
+		}
+	});
+
+	</script>
+
+	Front Face Detailing: <select id="front_detailing"><option value="none">None</option><option value="stepped">Stepped</option><option value="inclined">Inclined</option></select>
+
+	<aside id="front_detailing_form_stepped">
+		Number of Steps: <input type="text" id="front_steps" value="0"></input>
+		Step Depth: <input type="text" id="front_step_depth" value="0"></input>
+		Step Run: <input type="text" id="front_step_run" value="0"></input>
+	</aside>
+
+	<aside id="front_detailing_form_inclined">
+		Chamfer Height: <input type="text" id="front_chamfer_height" value="0"></input>
+		Chamfer Width: <input type="text" id="front_chamfer_width" value="0"></input>
+	</aside>
+	
+	<script>
+
+	$("#front_detailing").change(function(){
+		$("#front_detailing_form_stepped")[0].style.display = "none";
+		$("#front_detailing_form_inclined")[0].style.display = "none";
+
+		if ($("#front_detailing").val() == 'stepped')
+		{
+			$("#front_detailing_form_stepped")[0].style.display = "block";
+		}
+		
+		if ($("#front_detailing").val() == 'inclined')
+		{
+			$("#front_detailing_form_inclined")[0].style.display = "block";
+		}
+	});
+
+	</script>
+
+	Retaining Face Detailing: <select id="back_detailing"><option value="none">None</option><option value="stepped">Stepped</option><option value="inclined">Inclined</option></select>
+		
+	<aside id="back_detailing_form_stepped">
+		Number of Steps: <input type="text" id="back_steps" value="0"></input>
+		Step Depth: <input type="text" id="back_step_depth" value="0"></input>
+		Step Run: <input type="text" id="back_step_run" value="0"></input>
+	</aside>
+
+	<aside id="back_detailing_form_inclined">
+		Chamfer Height: <input type="text" id="back_chamfer_height" value="0"></input>
+		Chamfer Width: <input type="text" id="back_chamfer_width" value="0"></input>
+	</aside>
+	
+	<script>
+
+	$("#back_detailing").change(function(){
+		$("#back_detailing_form_stepped")[0].style.display = "none";
+		$("#back_detailing_form_inclined")[0].style.display = "none";
+
+		if ($("#back_detailing").val() == 'stepped')
+		{
+			$("#back_detailing_form_stepped")[0].style.display = "block";
+		}
+		if ($("#back_detailing").val() == 'inclined')
+		{
+			$("#back_detailing_form_inclined")[0].style.display = "block";
+		}
+	});
+
+	</script>
+
+	</section>
+
+</article>
+
+<article id="loading_soil">
+	<h2>Loading Soil</h2>
+	<pre>Stage 2 of 4</pre>
+
+	<p>Information on the soil which will apply loading conditions on the wall</p>
+</article>
+
+<article id="bearing_soil">
+	<h2>Bearing Soil</h2>
+	<pre>Stage 3 of 4</pre>
+
+	<p>Information on the bearing soil that the wall will sit on</p>
+</article>
+
+<article id="loading">
+	<h2>Additional Loading</h2>
+	<pre>Stage 4 of 4</pre>
+
+	<p>Additional loads which are applied on the retaining wall</p>
+</article>
+
+<!-- Drawing .................................................................. -->
+
+<article id="sketch">
+
+<canvas id="preview" width="500" height="500">Browser doesn't support preview</canvas>
+<script>
+
+function draw_rectangle (axes, bottom_x, bottom_y, width, height, colour)
+{
+	if (axes.context)
+	{
+		var min_x = Math.floor(axes.o_x + axes.scale * bottom_x);
+		var max_y = Math.floor(axes.o_y - axes.scale * bottom_y);
+		var max_x = Math.floor(axes.o_x + axes.scale * (bottom_x + width));
+		var min_y = Math.floor(axes.o_y - axes.scale * (bottom_y + height));
+		context = axes.context;
+
+		context.beginPath();
+      	context.rect(min_x, min_y, max_x - min_x, max_y - min_y);
+      	context.fillStyle = "#" + colour;
+      	context.fill();
+      	erroroutput("(" + min_x + "," + min_y + "), (" + max_x + "," + max_y + ")");
+     }
+}
+
+function draw_triangle(axes, x_1, y_1, width, height, colour)
+{
+	if (axes.context)
+	{
+		context = axes.context;
+		
+		var x_2 = Math.floor(axes.o_x + (x_1 + width) * axes.scale);
+		var y_2 = Math.floor(axes.o_y - (y_1 + height) * axes.scale);
+		var x_1 = Math.floor(axes.o_x + x_1 * axes.scale);
+		var y_1 = Math.floor(axes.o_y - y_1 * axes.scale);
+
+		context.beginPath();
+		context.moveTo(x_1, y_1);
+		context.lineTo(x_1, y_2);
+		context.lineTo(x_2, y_1);
+		context.lineTo(x_1, y_1);
+		context.closePath();
+      	context.fillStyle = "#" + colour;
+		context.fill();
+
+		erroroutput("(" + x_1 + "," + y_1 + "), (" + x_2 + "," + y_2 + ")");
+	}
+
+
+}
+
+function draw_clear(context)
+{
+	$("#error").html('');
+	context.clearRect(0, 0, 1000, 1000);
+}
+
+function redraw() {
+
+var canvas = $("#preview")[0];
+canvas.width=1000;
+canvas.height=1000;
+canvas.style.width="100%";
+canvas.style.height="100%";
+
+var context = canvas.getContext('2d');
+var total_height = 0;
+var total_width = 0;
+draw_clear(context);
+
+var stem_height = parseInt($("#stem_height").val());
+var stem_thickness = parseInt($("#stem_thickness").val());
+var toe_length = parseInt($("#toe_length").val());
+var heel_length = parseInt($("#heel_length").val());
+var base_thickness = parseInt($("#base_thickness").val());
+var shear_key_height = 0;
+var shear_key_thickness = 0;
+
+if ($("#shear_key").val() == 'yes')
+{
+	shear_key_height = parseInt($("#shear_key_height").val());
+	shear_key_thickness = parseInt($("#shear_key_thickness").val());
+}
+
+total_height = stem_height + base_thickness + shear_key_height;
+total_width = toe_length + heel_length + stem_thickness;
+
+var axes = {scale: 0, o_x: 0, o_y: 0, context: null};
+
+axes.context = context;
+
+if ((800 / total_height) < (600 / total_width))
+{
+	axes.scale = 800 / total_height;
+	axes.o_y = 900 - axes.scale * shear_key_height;
+	axes.o_x = (1000 - axes.scale * total_width) / 2;
+}
+else
+{
+	axes.scale = 600 / total_width;
+	axes.o_x = 200;
+	axes.o_y = 1000 - (1000 - axes.scale * total_height) / 2;
+}
+
+var retaining_wall = '444444';
+draw_rectangle(axes, 0, 0, total_width, base_thickness, retaining_wall);
+draw_rectangle(axes, toe_length, base_thickness, stem_thickness, stem_height, retaining_wall);
+if ($("#shear_key").val() == 'yes')
+{
+	draw_rectangle(axes, total_width - shear_key_thickness, -shear_key_height, total_width, 0, retaining_wall);
+}
+
+if ($("#front_detailing").val() == 'stepped')
+{
+	step_depth = parseInt($("#front_step_depth").val());
+	step_run = parseInt($("#front_step_run").val());
+	for (i = 0; i < parseInt($("#front_steps").val()); i++)
+	{
+		draw_rectangle(axes, toe_length + stem_thickness, base_thickness + i * step_depth, toe_length - (i+1) * step_run, step_depth, retaining_wall);
+	}
+}
+
+if ($("#front_detailing").val() == 'inclined')
+{
+	chamfer_width = parseInt($("#front_chamfer_width").val());
+	chamfer_height = parseInt($("#front_chamfer_height").val());
+
+	draw_triangle(axes, toe_length + stem_thickness, base_thickness, chamfer_width, chamfer_height, retaining_wall);
+}
+
+if ($("#back_detailing").val() == 'stepped')
+{
+	step_depth = parseInt($("#back_step_depth").val());
+	step_run = parseInt($("#back_step_run").val());
+	for (i = 0; i < parseInt($("#back_steps").val()); i++)
+	{
+		draw_rectangle(axes, step_run * (i+1), base_thickness + i * step_depth, toe_length - step_run * (i+1), step_depth, retaining_wall);
+	}
+}
+
+if ($("#back_detailing").val() == 'inclined')
+{
+	chamfer_width = parseInt($("#back_chamfer_width").val());
+	chamfer_height = parseInt($("#back_chamfer_height").val());
+
+	draw_triangle(axes, toe_length, base_thickness, -chamfer_width, chamfer_height, retaining_wall);
+}
+
+}
+$("input").change(function(){redraw()});
+$("select").change(function(){redraw()});
+
+
+
+redraw();
+
+</script>
+
+</article>
+
+</nav>
+
+<!-- Output ................................................................... -->
+
+<nav id="output" style="display:none">
+	<h2>Results</h2>
+	
+</nav>
+
+<script>
+	$("#input").show();
+	$("#js").hide();
+</script>
+
+</body>
+</html>
