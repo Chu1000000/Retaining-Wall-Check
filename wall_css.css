@@ -38,12 +38,46 @@ span {
 	width:100%;
 }
 
-.form input {
+input {
 	width:100%;
 	font-size:medium;
+	border: 1px solid gray;
 }
 
-.form select {
+select {
 	width:100%;
 	font-size:medium;
+	border: 1px solid gray;
+}
+
+.soil_name, .soil_depth, .soil_weight, .soil_angle, .soil_delete {
+	font-size:medium;
+	display: inline-block;
+	margin: 0px;
+	text-align: center;
+	border: 1px solid gray;
+}
+
+.soil_name {
+	width:45%;
+}
+
+.soil_depth, .soil_weight, .soil_angle {
+	width:15%;
+}
+
+.soil_delete {
+	width:5%;
+}
+
+.error {
+	border: 1px solid red;
+}
+
+.nonerror {
+	border: 1px solid gray;
+}
+
+#error {
+	color: red;
 }
