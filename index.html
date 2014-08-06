@@ -1,0 +1,246 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>Retaining Wall Checks</title>
+	<meta name="description" content="Calculation checks for retaining wall design">
+	<meta name="author" content="Anthony Chu">
+
+	<link rel="stylesheet" href="wall_css.css">
+	<script src="preview.js"></script>
+	<!--[if lt IE 9]>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+</head>
+
+<body>
+<script src="jquery.js"></script>
+
+<!-- Javascript check ......................................................... -->
+<div id="js">
+	Please enable javascript
+</div>
+
+<div id="error">
+</div>
+
+<!-- Input ................................................................ -->
+
+<nav id="input" style="display:none;">
+
+<article id="wall">
+	<h2>Wall Construction</h2>
+	<pre>Stage 1 of 5</pre>
+
+	<p>Dimensions and construction information of the retaining wall</p>
+
+	<section class="form">
+
+	Unit Weight: <input type="text" id="wall_weight" value=20></input>
+	Stem Height: <input type="text" id="stem_height" value=1000></input>
+	Stem Thickness: <input type="text" id="stem_thickness" value=100></input>
+
+	Toe Length: <input type="text" id="toe_length" value=100></input>
+	Heel Length: <input type="text" id="heel_length" value=1000></input>
+	
+	Base Thickness: <input type="text" id="base_thickness" value=100></input>
+
+	Shear Key: <select id="shear_key"><option value="no">No</option><option value="yes">Yes</option></select>
+	<aside id="shear_key_yes">
+	Shear Key Height: <input type="text" id="shear_key_height" value=100></input>
+	Shear Key Thickness: <input type="text" id="shear_key_thickness" value=1000></input>
+	</aside>
+
+	<script>
+
+	$("#shear_key").change(function(){
+		redraw();
+
+		if ($("#shear_key").val() == 'yes')
+		{
+			$("#shear_key_yes")[0].style.display = "block";
+		}
+		else
+		{
+			$("#shear_key_yes")[0].style.display = "none";
+		}
+	});
+
+	</script>
+
+	Front Face Detailing: <select id="front_detailing"><option value="none">None</option><option value="stepped">Stepped</option><option value="inclined">Inclined</option></select>
+
+	<aside id="front_detailing_form_stepped">
+		Number of Steps: <input type="text" id="front_steps" value="10"></input>
+		Step Depth: <input type="text" id="front_step_depth" value="10"></input>
+		Step Run: <input type="text" id="front_step_run" value="10"></input>
+	</aside>
+
+	<aside id="front_detailing_form_inclined">
+		Chamfer Height: <input type="text" id="front_chamfer_height" value="100"></input>
+		Chamfer Width: <input type="text" id="front_chamfer_width" value="100"></input>
+	</aside>
+	
+	<script>
+
+	$("#front_detailing").change(function(){
+		redraw();
+		$("#front_detailing_form_stepped")[0].style.display = "none";
+		$("#front_detailing_form_inclined")[0].style.display = "none";
+
+		if ($("#front_detailing").val() == 'stepped')
+		{
+			$("#front_detailing_form_stepped")[0].style.display = "block";
+		}
+		
+		if ($("#front_detailing").val() == 'inclined')
+		{
+			$("#front_detailing_form_inclined")[0].style.display = "block";
+		}
+	});
+
+	</script>
+
+	Retaining Face Detailing: <select id="back_detailing"><option value="none">None</option><option value="stepped">Stepped</option><option value="inclined">Inclined</option></select>
+		
+	<aside id="back_detailing_form_stepped">
+		Number of Steps: <input type="text" id="back_steps" value="10"></input>
+		Step Depth: <input type="text" id="back_step_depth" value="10"></input>
+		Step Run: <input type="text" id="back_step_run" value="10"></input>
+	</aside>
+
+	<aside id="back_detailing_form_inclined">
+		Chamfer Height: <input type="text" id="back_chamfer_height" value="100"></input>
+		Chamfer Width: <input type="text" id="back_chamfer_width" value="100"></input>
+	</aside>
+	
+	<script>
+
+	$("#back_detailing").change(function(){
+		$("#back_detailing_form_stepped")[0].style.display = "none";
+		$("#back_detailing_form_inclined")[0].style.display = "none";
+
+		if ($("#back_detailing").val() == 'stepped')
+		{
+			$("#back_detailing_form_stepped")[0].style.display = "block";
+		}
+		if ($("#back_detailing").val() == 'inclined')
+		{
+			$("#back_detailing_form_inclined")[0].style.display = "block";
+		}
+		redraw();
+	});
+
+	</script>
+
+	</section>
+
+</article>
+
+<article id="retained_soil">
+	<h2>Retained Soil</h2>
+	<pre>Stage 2 of 5</pre>
+
+	<p>Information on the retained soil which will apply loading conditions on the wall, from the surface top to the bottom of the retaining wall:</p>
+
+	<div class="soil_name">Name</div><div class="soil_depth">Depth</div><div class="soil_weight">UnitWeight</div><div class="soil_angle">Angle</div>
+	<section id="soil_form">
+	</section>
+	<a id="add_retained_layer">Add new layer...</a>
+
+	<script>
+	function new_retained_layer()
+	{
+		$("#soil_form").append('<div class="retained_layer"><input type="text" class="soil_name"></input><input type="text" class="soil_depth" value=100 ></input><input type="text" value=10 class="soil_weight"></input><input type="text" value=0 class="soil_angle"></input><input type="button" class="soil_delete" value="X"></input></div>');
+	}
+
+	$("#add_retained_layer").click(function(){new_retained_layer(); redraw();});
+
+	new_retained_layer();
+
+	$("#soil_form").on('click', '.soil_delete', function(){
+		$(this).parent().remove(); redraw(); 
+	});
+	</script>
+</article>
+
+<article id="cover_soil">
+	<h2>Cover Soil</h2>
+	<pre>Stage 3 of 5</pre>
+
+	<p>Information on the soil on the passive side of the wall</p>
+
+	<div class="soil_name">Name</div><div class="soil_depth">Depth</div><div class="soil_weight">UnitWeight</div><div class="soil_angle">Angle</div>
+	<section id="cover_form">
+	</section>
+	<a id="add_cover_layer">Add new layer...</a>
+
+	<script>
+	function new_cover_layer()
+	{
+		$("#cover_form").append('<div class="cover_layer"><input type="text" class="soil_name"></input><input type="text" class="soil_depth" value=100 ></input><input type="text" value=10 class="soil_weight"></input><input type="text" value=0 class="soil_angle"></input><input type="button" class="soil_delete" value="X"></input></div>');
+	}
+
+	$("#add_cover_layer").click(function(){new_cover_layer(); redraw(); });
+
+	new_cover_layer();
+
+	$("#cover_form").on('click', '.soil_delete', function(){
+		$(this).parent().remove(); redraw(); 
+	});
+	</script>
+
+</article>
+
+<article id="bearing_soil">
+	<h2>Bearing Soil</h2>
+	<pre>Stage 4 of 5</pre>
+
+	<p>Information on the bearing soil that the wall will sit on</p>
+</article>
+
+<article id="loading">
+	<h2>Additional Loading</h2>
+	<pre>Stage 5 of 5</pre>
+
+	<p>Additional loads which are applied on the retaining wall</p>
+</article>
+
+<!-- Drawing .................................................................. -->
+
+<article id="sketch">
+<img id="preview" style="width:100%; height:100%;" src=""></img>
+
+<script>
+
+$(document).on('change', 'input', function(){redraw()});
+$("input").change(function(){redraw()});
+$("select").change(function(){redraw()});
+
+redraw();
+
+</script>
+
+</article>
+
+</nav>
+
+<!-- Output ................................................................... -->
+
+<nav id="output" style="display:none">
+	<h2>Results</h2>
+	
+</nav>
+
+<script>
+	$("#input").show();
+	$("#js").hide();
+
+	$(window).resize(function () {resize();});
+	$(window).load(function(){resize();});
+</script>
+
+</body>
+</html>
