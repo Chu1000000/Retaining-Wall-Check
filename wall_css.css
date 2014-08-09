@@ -39,11 +39,17 @@ span {
 	width:100%;
 }
 
+
+
 input {
 	width:100%;
 	font-size:medium;
 	border: 1px solid gray;
 }
+.inline {
+	width:auto;
+}
+
 
 select {
 	width:100%;
@@ -51,7 +57,7 @@ select {
 	border: 1px solid gray;
 }
 
-.soil_name, .soil_depth, .soil_weight, .soil_angle, .soil_delete {
+.soil_name, .soil_depth, .soil_weight, .soil_angle, .delete, .pos_x, .pos_y, .force_x, .force_y {
 	font-size:medium;
 	display: inline-block;
 	margin: 0px;
@@ -63,11 +69,11 @@ select {
 	width:45%;
 }
 
-.soil_depth, .soil_weight, .soil_angle {
+.soil_depth, .soil_weight, .soil_angle, .pos_x, .pos_y, .force_x, .force_y {
 	width:15%;
 }
 
-.soil_delete {
+.delete {
 	width:5%;
 }
 

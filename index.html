@@ -9,6 +9,7 @@
 	<meta name="author" content="Anthony Chu">
 
 	<link rel="stylesheet" href="wall_css.css">
+	<script src="calculate.js"></script>
 	<script src="preview.js"></script>
 	<!--[if lt IE 9]>
 	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -23,9 +24,6 @@
 	Please enable javascript
 </div>
 
-<div id="error">
-</div>
-
 <!-- Input ................................................................ -->
 
 <nav id="input" style="display:none;">
@@ -38,33 +36,30 @@
 
 	<section class="form">
 
-	Unit Weight: <input type="text" id="wall_weight" value=20></input>
-	Stem Height: <input type="text" id="stem_height" value=1000></input>
-	Stem Thickness: <input type="text" id="stem_thickness" value=100></input>
+	Unit Weight: <input type="text" id="wall_weight" value=20>
+	Stem Height: <input type="text" id="stem_height" value=1000>
+	Stem Thickness: <input type="text" id="stem_thickness" value=100>
 
-	Toe Length: <input type="text" id="toe_length" value=100></input>
-	Heel Length: <input type="text" id="heel_length" value=1000></input>
+	Toe Length: <input type="text" id="toe_length" value=100>
+	Heel Length: <input type="text" id="heel_length" value=1000>
 	
-	Base Thickness: <input type="text" id="base_thickness" value=100></input>
+	Base Thickness: <input type="text" id="base_thickness" value=100>
 
-	Shear Key: <select id="shear_key"><option value="no">No</option><option value="yes">Yes</option></select>
+	<input id="shear_key" type="checkbox" class="inline">Shear Key:<br />
 	<aside id="shear_key_yes">
-	Shear Key Height: <input type="text" id="shear_key_height" value=100></input>
-	Shear Key Thickness: <input type="text" id="shear_key_thickness" value=1000></input>
+	Shear Key Height: <input type="text" id="shear_key_height" value=100>
+	Shear Key Thickness: <input type="text" id="shear_key_thickness" value=100>
 	</aside>
 
 	<script>
 
-	$("#shear_key").change(function(){
+	$('#shear_key').click (function(){
 		redraw();
+		$('#shear_key_yes')[0].style.display = 'none';
 
-		if ($("#shear_key").val() == 'yes')
+		if ($('#shear_key').is(':checked'))
 		{
-			$("#shear_key_yes")[0].style.display = "block";
-		}
-		else
-		{
-			$("#shear_key_yes")[0].style.display = "none";
+			$('#shear_key_yes')[0].style.display = 'block';
 		}
 	});
 
@@ -73,14 +68,13 @@
 	Front Face Detailing: <select id="front_detailing"><option value="none">None</option><option value="stepped">Stepped</option><option value="inclined">Inclined</option></select>
 
 	<aside id="front_detailing_form_stepped">
-		Number of Steps: <input type="text" id="front_steps" value="10"></input>
-		Step Depth: <input type="text" id="front_step_depth" value="10"></input>
-		Step Run: <input type="text" id="front_step_run" value="10"></input>
+		Number of Steps: <input type="text" id="front_steps" value="5">
+		Step Depth: <input type="text" id="front_step_depth" value="10">
+		Step Run: <input type="text" id="front_step_run" value="10">
 	</aside>
 
 	<aside id="front_detailing_form_inclined">
-		Chamfer Height: <input type="text" id="front_chamfer_height" value="100"></input>
-		Chamfer Width: <input type="text" id="front_chamfer_width" value="100"></input>
+		Inclination Angle: <input type="text" id="front_angle" value="5">
 	</aside>
 	
 	<script>
@@ -106,14 +100,13 @@
 	Retaining Face Detailing: <select id="back_detailing"><option value="none">None</option><option value="stepped">Stepped</option><option value="inclined">Inclined</option></select>
 		
 	<aside id="back_detailing_form_stepped">
-		Number of Steps: <input type="text" id="back_steps" value="10"></input>
-		Step Depth: <input type="text" id="back_step_depth" value="10"></input>
-		Step Run: <input type="text" id="back_step_run" value="10"></input>
+		Number of Steps: <input type="text" id="back_steps" value="5">
+		Step Depth: <input type="text" id="back_step_depth" value="10">
+		Step Run: <input type="text" id="back_step_run" value="10">
 	</aside>
 
 	<aside id="back_detailing_form_inclined">
-		Chamfer Height: <input type="text" id="back_chamfer_height" value="100"></input>
-		Chamfer Width: <input type="text" id="back_chamfer_width" value="100"></input>
+		Inclination Angle: <input type="text" id="back_angle" value="5">
 	</aside>
 	
 	<script>
@@ -153,14 +146,14 @@
 	<script>
 	function new_retained_layer()
 	{
-		$("#soil_form").append('<div class="retained_layer"><input type="text" class="soil_name"></input><input type="text" class="soil_depth" value=100 ></input><input type="text" value=10 class="soil_weight"></input><input type="text" value=0 class="soil_angle"></input><input type="button" class="soil_delete" value="X"></input></div>');
+		$("#soil_form").append('<div class="retained_layer"><input type="text" class="soil_name"><input type="text" class="soil_depth" value=100 ><input type="text" value=10 class="soil_weight"><input type="text" value=0 class="soil_angle"><input type="button" class="delete" value="X"></div>');
 	}
 
 	$("#add_retained_layer").click(function(){new_retained_layer(); redraw();});
 
 	new_retained_layer();
 
-	$("#soil_form").on('click', '.soil_delete', function(){
+	$("#soil_form").on('click', '.delete', function(){
 		$(this).parent().remove(); redraw(); 
 	});
 	</script>
@@ -180,14 +173,14 @@
 	<script>
 	function new_cover_layer()
 	{
-		$("#cover_form").append('<div class="cover_layer"><input type="text" class="soil_name"></input><input type="text" class="soil_depth" value=100 ></input><input type="text" value=10 class="soil_weight"></input><input type="text" value=0 class="soil_angle"></input><input type="button" class="soil_delete" value="X"></input></div>');
+		$("#cover_form").append('<div class="cover_layer"><input type="text" class="soil_name"><input type="text" class="soil_depth" value=100 ><input type="text" value=10 class="soil_weight"><input type="text" value=0 class="soil_angle"><input type="button" class="delete" value="X"></div>');
 	}
 
 	$("#add_cover_layer").click(function(){new_cover_layer(); redraw(); });
 
 	new_cover_layer();
 
-	$("#cover_form").on('click', '.soil_delete', function(){
+	$("#cover_form").on('click', '.delete', function(){
 		$(this).parent().remove(); redraw(); 
 	});
 	</script>
@@ -199,20 +192,97 @@
 	<pre>Stage 4 of 5</pre>
 
 	<p>Information on the bearing soil that the wall will sit on</p>
+
+	Unit Weight: <input type="text" id="bearing_weight" value=20>
+	Angle: <input type="text" id="bearing_angle" value=0>
+	Shear Strength: <input type="text" id="bearing_strength" value=40>
+</article>
+
+<article id="water_table">
+	<h2>Water Table</h2>
+	<pre>Stage 5 of 6</pre>
+
+	<p>Position of the water table in relation to the bottom of the retaining wall</p>
+
+	<input class="inline" type="checkbox" id="check_inside">Inner-side of wall:
+	<input type="text" id="water_inside" value=200>
+
+	<input class="inline" type="checkbox" id="check_under">Under wall:
+	<input type="text" id="water_under" value="-50">
+
+	<input class="inline" type="checkbox" id="check_outside">Outer-Side of wall:
+	<input type="text" id="water_outside" value=200>
+
+	<script>
+	$('#water_inside')[0].style.display = 'none';
+	$('#water_under')[0].style.display = 'none';
+	$('#water_outside')[0].style.display = 'none';
+
+	$('#check_inside').click (function(){
+		$('#water_inside')[0].style.display = 'none';
+
+		if ($('#check_inside').is(':checked'))
+		{
+			$('#water_inside')[0].style.display = 'block';
+		}
+	});
+
+	$('#check_under').click (function(){
+		$('#water_under')[0].style.display = 'none';
+
+		if ($('#check_under').is(':checked'))
+		{
+			$('#water_under')[0].style.display = 'block';
+		}
+	});
+
+	$('#check_outside').click (function(){
+		$('#water_outside')[0].style.display = 'none';
+
+		if ($('#check_outside').is(':checked'))
+		{
+			$('#water_outside')[0].style.display = 'block';
+		}
+	});
+	</script>
 </article>
 
 <article id="loading">
 	<h2>Additional Loading</h2>
-	<pre>Stage 5 of 5</pre>
+	<pre>Stage 6 of 6</pre>
 
-	<p>Additional loads which are applied on the retaining wall</p>
+	<p>Additional loads which are applied on the retaining wall, (0,0) is located at the bottom of the toe. x is positive right, y is positive up</p>
+
+	Surcharge (kN/m): <input type="text" id="surcharge" value="0">
+
+	<p>Point Loads:</p>
+	<div class="pos_x">X</div><div class="pos_y">Y</div><div class="force_x">Fx</div><div class="force_y">Fy</div>
+	<section id="force_form">
+	</section>
+	<a id="add_force_layer">Add new force...</a>
+
+	<script>
+	function new_force_layer()
+	{
+		$("#force_form").append('<div class="force_layer"><input type="text" class="pos_x" value=0 ><input type="text" class="pos_y" value=0 ><input type="text" value=0 class="force_x"><input type="text" value=0 class="force_y"><input type="button" class="delete" value="X"></div>');
+	}
+
+	$("#add_force_layer").click(function(){new_force_layer(); redraw(); });
+
+	new_force_layer();
+
+	$("#force_form").on('click', '.delete', function(){
+		$(this).parent().remove(); redraw(); 
+	});
+	</script>
 </article>
 
 <!-- Drawing .................................................................. -->
 
 <article id="sketch">
 <img id="preview" style="width:100%; height:100%;" src=""></img>
-
+<div id="error">
+</div>
 <script>
 
 $(document).on('change', 'input', function(){redraw()});
