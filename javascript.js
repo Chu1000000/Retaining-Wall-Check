@@ -25,10 +25,12 @@ function get_inputs()
 	chkbox_inputs = ['shear_key', 'check_inside', 'check_outside', 'check_under'];
 
 	var i = [];
+	var input;
+
 	for (a=0; a < int_inputs.length; a++)
 	{
 		input = int_inputs[a];
-		i[input] = parseInt($("#" + input).val());
+		i[input] = parseFloat($("#" + input).val());
 	}
 	for (a=0; a < str_inputs.length; a++)
 	{
@@ -41,16 +43,18 @@ function get_inputs()
 		i[input] = ($("#" + input).is(':checked') ? true : false);
 	}
 
-	layer_info = ['depth', 'weight', 'angle'];
+	layer_info = ['depth', 'dry', 'wet', 'angle'];
 	layers = ['retained', 'cover']
+	var j = [];
+
 	for (c = 0; c < layers.length; c++)
 	{
 
-	i[layers[c]] = [];
+	j[layers[c]] = [];
 
 	$('.' + layers[c] + '_layer').each(function(a, obj){
-		i[layers[c]][a] = [];
-		i[layers[c]][a]['name'] = $(obj).children('.soil_name');
+		j[layers[c]][a] = [];
+		j[layers[c]][a]['name'] = $(obj).children('.soil_name').val();
 
 		for (b = 0; b < layer_info.length; b++)
 		{
@@ -62,9 +66,11 @@ function get_inputs()
 		else
 		{
 			set_nonerror(($(obj).children('.soil_' + layer_info[b])));
-			i[layers[c]][a][layer_info[b]] = depth;
+			j[layers[c]][a][layer_info[b]] = depth;
 		}
 		}
+
+		j[layers[c]][a]['weight'] = j[layers[c]][a]['dry'];
 	});
 
 	}
@@ -80,14 +86,25 @@ function get_inputs()
 	});
 
 	i['total_cover'] = 0;
-	for (a = 0; a < i.cover.length; a++)
+	for (a = 0; a < j.cover.length; a++)
 	{
-		i.total_cover = i.total_cover + i.cover[a].depth;
+		i.total_cover = i.total_cover + j.cover[a].depth;
+	}
+
+	i['total_retained'] = 0;
+	for (a = 0; a < j.retained.length; a++)
+	{
+		i.total_retained = i.total_retained + j.retained[a].depth;
 	}
 
 	if (i.total_cover > i.stem_height)
 	{
 		set_error_msg('There is more cover soil than the height of the retaining wall');
+	}
+
+	if (i.total_retained > i.stem_height)
+	{
+		set_error_msg('There is more retained soil than the height of the retaining wall');
 	}
 
 	i["total_height"] = i.stem_height + i.base_thickness;
@@ -205,6 +222,11 @@ function get_inputs()
 	{
 		set_error($("#water_outside"), 'Water table should be higher');
 	}
+	else if (i.water_outside > i.total_retained)
+	{
+		set_error($("#water_outside"), 'Water table should be within soil layers');
+		i.check_outside = false;
+	}
 	else
 	{
 		set_nonerror($("#water_outside"));
@@ -213,11 +235,130 @@ function get_inputs()
 	if (i.water_inside < 0)
 	{
 		set_error($("#water_inside"), 'Water table should be higher');
+	}	
+	else if (i.water_inside > i.total_cover)
+	{
+		set_error($("#water_inside"), 'Water table should be within soil layers');
+		i.check_inside = false;
 	}
 	else
 	{
 		set_nonerror($("#water_inside"));
 	}
+
+	// -- Split soil
+	var table = i.total_retained + i.base_thickness - i.water_outside;
+	var c_depth = 0;
+	var boundary = 0;
+	var past = false;
+
+	i.retained = [];
+
+	if (i.check_outside)
+	{
+	if (table == 0)
+	{
+		past = true;
+	}
+	for (a = 0; a < j.retained.length; a++)
+	{
+		var me = j.retained[a];
+		c_depth = c_depth + me.depth;
+
+		if (!past)
+		{
+			i.retained[a] = me;
+			i.retained[a].weight = me.dry;
+
+			if (c_depth == table)
+			{
+				boundary = 0;
+				past = true;
+			}
+			else if (c_depth > table)
+			{
+				boundary = 1;
+				var diff = c_depth - table;
+				i.retained[a].depth = i.retained[a].depth - diff;
+				i.retained[a+1] = {
+					name: me.name,
+					angle: me.angle,
+					depth: diff,
+					dry: me.dry,
+					wet: me.wet,
+					weight: me.wet
+				}
+				past = true;
+			}
+		}
+		else
+		{
+			i.retained[a+boundary] = me;
+			past = true;
+			i.retained[a+boundary].weight = me.wet;
+		}
+	}
+	}
+	else
+	{
+		i.retained = j.retained;
+	}
+
+	table = i.total_cover + i.base_thickness - i.water_inside;
+	i.cover = [];
+	c_depth = 0;
+	boundary = 0;
+	past = false;
+	
+	if (i.check_inside)
+	{
+	if (table == 0)
+	{
+		past = true;
+	}
+	for (a = 0; a < j.cover.length; a++)
+	{
+		me = j.cover[a];
+		if (!past)
+		{
+			i.cover[a] = me;
+			c_depth = c_depth + me.depth;
+			i.cover[a].weight = me.dry;
+
+			if (c_depth == table)
+			{
+				boundary = 0;
+				past = true;
+			}
+			else if (c_depth > table)
+			{
+				boundary = 1;
+				diff = c_depth - table;
+				i.cover[a].depth = i.cover[a].depth - diff;
+				i.cover[a+1] = {
+					name: me.name,
+					angle: me.angle,
+					depth: diff,
+					dry: me.dry,
+					wet: me.wet,
+					weight: me.wet
+				}
+				past = true;
+			}
+		}
+		else
+		{
+			i.cover[a+boundary] = me;
+			past = true;
+			i.cover[a+boundary].weight = me.wet;
+		}
+	}
+	}
+	else
+	{
+		i.cover = j.cover;
+	}
+
 	return i;
 }
 

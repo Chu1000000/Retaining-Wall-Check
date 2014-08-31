@@ -3,6 +3,8 @@ var region_types = [];
 
 function region_triangle(origin_x, origin_y, width, height, type)
 {
+	if (width != 0 && height != 0)
+	{
 	regions.triangles[regions.triangles.length] = 
 		{
 			origin_x: origin_x,
@@ -12,11 +14,14 @@ function region_triangle(origin_x, origin_y, width, height, type)
 			weight: region_types[type],
 			type: type
 		};
-
+	}
 }
 
 function region_rectangle(bottom_x, bottom_y, width, height, type)
 {
+	if (width != 0 && height != 0)
+	{
+
 	if (width < 0)
 	{
 		bottom_x = bottom_x + width;
@@ -39,6 +44,8 @@ function region_rectangle(bottom_x, bottom_y, width, height, type)
 			weight: region_types[type],
 			type: type
 		};
+
+	}
 
 }
 
@@ -112,12 +119,12 @@ if (i.front_detailing == 'inclined')
 }
 
 // Retaining Soil ------------------------------------------------------------------
-var current_depth = i.stem_height + i.base_thickness;
+var current_depth = i.total_retained + i.base_thickness;
 detail_start = back_detail_start;
 for (a = 0; a < i.retained.length; a++)
 {
 	depth = i.retained[a].depth;
-	region_type('retained_' + a, i.retained[a].soil_weight);
+	region_type('retained_' + a, i.retained[a].weight);
 	region_type('oretained_' + a, 0);
 	detail = false;
 
@@ -212,7 +219,7 @@ detail_start = front_detail_start;
 for (a = 0; a < i.cover.length; a++)
 {
 	depth = i.cover[a].depth;
-	region_type('cover_' + a, i.cover[a].soil_weight);
+	region_type('cover_' + a, i.cover[a].weight);
 	region_type('ocover_' + a, 0);
 
 	detail = false;
@@ -313,7 +320,7 @@ for (a = 0; a < i.cover.length; a++)
 function change_base(num, from, to, length)
 {
 	num = parseInt(num, from);
-	new_num = num.toString(to);
+	var new_num = num.toString(to);
 	while (new_num.length < length)
 	{
 		new_num = "0" + new_num;
@@ -334,13 +341,13 @@ function draw_line (axes, left_x, left_y, right_x, right_y)
 {
 	if (right_x < left_x)
 	{
-		a = left_x;
+		var a = left_x;
 		left_x = right_x;
 		right_x = a;
 	}
 	if (left_y < right_y)
 	{
-		a = left_y;
+		var a = left_y;
 		left_y = right_y;
 		right_y = a;
 	}
@@ -356,7 +363,7 @@ function draw_line (axes, left_x, left_y, right_x, right_y)
 
 function draw_rectangle (axes, bottom_x, bottom_y, width, height, type)
 {
-	colour = colour_types[type]
+	var colour = colour_types[type];
 	var min_x = Math.floor(axes.o_x + axes.scale * bottom_x);
 	var max_y = Math.floor(axes.o_y - axes.scale * bottom_y);
 	var max_x = Math.floor(axes.o_x + axes.scale * (bottom_x + width));
@@ -367,7 +374,8 @@ function draw_rectangle (axes, bottom_x, bottom_y, width, height, type)
 
 function draw_triangle(axes, x_1, y_1, width, height, type)
 {
-	colour = colour_types[type];
+	var colour = colour_types[type];
+	var describe;
 	var x_2 = Math.floor(axes.o_x + (x_1 + width) * axes.scale);
 	var y_2 = Math.floor(axes.o_y - (y_1 + height) * axes.scale);
 	var x_1 = Math.floor(axes.o_x + x_1 * axes.scale);
@@ -405,9 +413,9 @@ function draw_arrow(axes, x_1, y_1, left_or_right, up_or_down)
 	x_1 = axes.o_x + axes.scale * x_1;
 	y_1 = axes.o_y - axes.scale * y_1;
 
-	length = 50;
-	x_2 = x_1 + left_or_right * length;
-	y_2 = y_1 - up_or_down * length;
+	var length = 50;
+	var x_2 = x_1 + left_or_right * length;
+	var y_2 = y_1 - up_or_down * length;
 
 	src = src + "p" + change_base(x_1, 10, 36, 4) + "" + change_base(y_1, 10, 36, 4) + change_base(x_2, 10, 36, 4) + change_base(y_2, 10, 36, 4) + ";";
 }
@@ -420,8 +428,8 @@ function draw_clear()
 // --- Set palette up ----------------------------------------------
 function resize()
 {
-	width = $(window).width() * 0.45;
-	height = $(window).height() * 0.8;
+	var width = $(window).width() * 0.45;
+	var height = $(window).height() * 0.8;
 	if (width < height)
 	{
 		$("#preview").css("height", width + "px");
@@ -439,7 +447,7 @@ function redraw()
 {
 	draw_clear();
 
-	i = get_inputs();
+	var i = get_inputs();
 
 	var box_x = 1200;
 	var box_y = 1200;
@@ -454,7 +462,7 @@ function redraw()
 	{
 		axes.scale = inner_y / i.total_height;
 		axes.o_y = box_y - y_margin - axes.scale * i.shear_key_height;
-		axes.o_x = x_margin + (inner_x - axes.scale * total_width) / 2;
+		axes.o_x = x_margin + (inner_x - axes.scale * i.total_width) / 2;
 		axes.left_edge = -axes.o_x / axes.scale;
 		axes.right_edge = axes.o_x / axes.scale;
 	}
@@ -470,6 +478,10 @@ function redraw()
 	region(i, axes);
 
 	// Set colours
+	var colour;
+	var colourHEX;
+	var a;
+
 	colour_type('wall', '444444');
 	for (a = 0; a < i.retained.length; a++)
 	{
@@ -499,6 +511,8 @@ function redraw()
 	}
 
 	// Water Table ------------------------------------------------------------------
+	var detail;
+	var y;
 	if (i.check_inside)
 	{
 		detail = 0;
@@ -513,8 +527,8 @@ function redraw()
 		}
 		else if (i.front_detailing == 'stepped')
 		{
-			step_depth = i.front_step_depth;
-			step_no = Math.ceil((y - i.stem_thickness) / step_depth);
+			var step_depth = i.front_step_depth;
+			var step_no = Math.ceil((y - i.stem_thickness) / step_depth);
 			if (step_no <= i.front_steps)
 			{
 				detail = i.toe_length - step_no * i.front_step_run;
@@ -542,8 +556,8 @@ function redraw()
 		}
 		else if (i.back_detailing == 'stepped')
 		{
-			step_depth = i.back_step_depth;
-			step_no = Math.ceil((y - i.stem_thickness) / step_depth);
+			var step_depth = i.back_step_depth;
+			var step_no = Math.ceil((y - i.stem_thickness) / step_depth);
 			if (step_no <= i.back_steps)
 			{
 				detail = i.heel_length - step_no * i.back_step_run;
@@ -556,7 +570,7 @@ function redraw()
 	// Surcharge ------------------------------------------------------------------
 	if (i.surcharge > 0)
 	{
-		draw_surcharge(axes, i.stem_thickness + i.toe_length, i.stem_height + i.base_thickness);
+		draw_surcharge(axes, i.stem_thickness + i.toe_length, i.total_retained + i.base_thickness);
 	}
 
 	// Forces ---------------------------------------------------------------------
@@ -565,13 +579,13 @@ function redraw()
 	{
 		if (i.force[a].dir_x != 0)
 		{
-			dir_x = i.force[a].dir_x / Math.abs(i.force[a].dir_x);
+			var dir_x = i.force[a].dir_x / Math.abs(i.force[a].dir_x);
 			draw_arrow(axes, i.force[a].pos_x, i.force[a].pos_y, dir_x, 0);
 		}
 		
 		if (i.force[a].dir_y != 0)
 		{
-			dir_y = i.force[a].dir_y / Math.abs(i.force[a].dir_y);
+			var dir_y = i.force[a].dir_y / Math.abs(i.force[a].dir_y);
 			draw_arrow(axes, i.force[a].pos_x, i.force[a].pos_y, 0, dir_y);
 		}
 	}

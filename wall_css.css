@@ -1,5 +1,6 @@
 body, article, nav, pre {
 	font-family: arial;
+	font-size:small;
 }
 
 aside {
@@ -15,6 +16,7 @@ aside {
 
 #output {
 	display:none;
+	width: 100%;
 }
 
 nav {
@@ -43,7 +45,7 @@ span {
 
 input {
 	width:100%;
-	font-size:medium;
+	font-size:small;
 	border: 1px solid gray;
 }
 .inline {
@@ -53,12 +55,12 @@ input {
 
 select {
 	width:100%;
-	font-size:medium;
+	font-size:small;
 	border: 1px solid gray;
 }
 
-.soil_name, .soil_depth, .soil_weight, .soil_angle, .delete, .pos_x, .pos_y, .force_x, .force_y {
-	font-size:medium;
+.soil_name, .soil_depth, .soil_dry, .soil_wet, .soil_angle, .delete, .pos_x, .pos_y, .force_x, .force_y {
+	font-size:small;
 	display: inline-block;
 	margin: 0px;
 	text-align: center;
@@ -66,10 +68,10 @@ select {
 }
 
 .soil_name {
-	width:45%;
+	width:30%;
 }
 
-.soil_depth, .soil_weight, .soil_angle, .pos_x, .pos_y, .force_x, .force_y {
+.soil_depth, .soil_dry, .soil_wet, .soil_angle, .pos_x, .pos_y, .force_x, .force_y {
 	width:15%;
 }
 
@@ -87,4 +89,41 @@ select {
 
 #error {
 	color: red;
+}
+
+#solve {
+	width: 10%;
+	height: 10%;
+	background-color: #666666;
+	position:fixed;
+	text-align: center;
+	bottom: 0px;
+	right: 0px;
+	display:table;
+}
+
+#solve:hover {
+	background-color: #BBBBBB;
+}
+
+#solve_button {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+table, #headline {
+	width:90%;
+	border: 1px solid black;
+}
+
+th {
+	text-align: left;
+}
+
+table td {
+	width: 10%;
+}
+
+.headline {
+	background-color: #AACCCC;
 }
