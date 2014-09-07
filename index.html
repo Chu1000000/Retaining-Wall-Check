@@ -22,31 +22,44 @@
 	Please enable javascript
 </div>
 
+<nav id="title">
+<article>
+	<h2>Retaining Wall Checks</h2>
+	<pre>by Anthony Chu v2014-09-07</pre>
+</article>
+</nav>
 <!-- Input ................................................................ -->
 
 <nav id="input" style="display:none;">
 
 <article id="wall">
 	<h2>Wall Construction</h2>
-	<pre>Stage 1 of 5</pre>
+	<pre>Stage 1 of 6</pre>
 
 	<p>Dimensions and construction information of the retaining wall</p>
 
-	<div class="form">
+	Construction Form:
+	<select id="mode">
+	<option value="gravity">Gravity / Cantilever</option>
+	<option value="sheet">Sheet Piling</option>
+	<option value="reinforced" disabled="true">Reinforced Soil</option>
+	</select>
 
-	Unit Weight: <input type="text" id="wall_weight" value="20">
-	Stem Height: <input type="text" id="stem_height" value="10">
-	Stem Thickness: <input type="text" id="stem_thickness" value="0.5">
+	<div id="gravity_form">
+	Unit Weight (m): <input type="text" id="wall_weight" value="20">
+	Depth (m): <input type="text" id="wall_depth" value="1">
+	Stem Height (m): <input type="text" id="stem_height" value="10">
+	Stem Thickness (m): <input type="text" id="stem_thickness" value="0.5">
 
-	Toe Length: <input type="text" id="toe_length" value="1">
-	Heel Length: <input type="text" id="heel_length" value="5">
+	Toe Length (m): <input type="text" id="toe_length" value="1">
+	Heel Length (m): <input type="text" id="heel_length" value="5">
 	
-	Base Thickness: <input type="text" id="base_thickness" value="0.5">
+	Base Thickness (m): <input type="text" id="base_thickness" value="0.5">
 
 	<input id="shear_key" type="checkbox" class="inline">Shear Key:<br />
 	<aside id="shear_key_yes">
-	Shear Key Height: <input type="text" id="shear_key_height" value="1">
-	Shear Key Thickness: <input type="text" id="shear_key_thickness" value="0.5">
+	Shear Key Height (m): <input type="text" id="shear_key_height" value="1">
+	Shear Key Thickness (m): <input type="text" id="shear_key_thickness" value="0.5">
 	</aside>
 
 	<script>
@@ -63,16 +76,16 @@
 
 	</script>
 
-	Front Face Detailing: <select id="front_detailing"><option value="none">None</option><option value="stepped">Stepped</option><option value="inclined">Inclined</option></select>
+	Front Face Detailing (m): <select id="front_detailing"><option value="none">None</option><option value="stepped">Stepped</option><option value="inclined">Inclined</option></select>
 
 	<aside id="front_detailing_form_stepped">
 		Number of Steps: <input type="text" id="front_steps" value="5">
-		Step Depth: <input type="text" id="front_step_depth" value="0.1">
-		Step Run: <input type="text" id="front_step_run" value="0.1">
+		Step Depth (m): <input type="text" id="front_step_depth" value="0.1">
+		Step Run (m): <input type="text" id="front_step_run" value="0.1">
 	</aside>
 
 	<aside id="front_detailing_form_inclined">
-		Inclination Angle: <input type="text" id="front_angle" value="5">
+		Inclination Angle (Deg): <input type="text" id="front_angle" value="5">
 	</aside>
 	
 	<script>
@@ -99,12 +112,12 @@
 		
 	<aside id="back_detailing_form_stepped">
 		Number of Steps: <input type="text" id="back_steps" value="5">
-		Step Depth: <input type="text" id="back_step_depth" value="0.1">
-		Step Run: <input type="text" id="back_step_run" value="0.1">
+		Step Depth (m): <input type="text" id="back_step_depth" value="0.1">
+		Step Run (m): <input type="text" id="back_step_run" value="0.1">
 	</aside>
 
 	<aside id="back_detailing_form_inclined">
-		Inclination Angle: <input type="text" id="back_angle" value="5">
+		Inclination Angle (Deg): <input type="text" id="back_angle" value="5">
 	</aside>
 	
 	<script>
@@ -125,18 +138,46 @@
 	});
 
 	</script>
-
 	</div>
+
+	<div id="sheet_form">
+	Sheet Height (m): <input type="text" id="sheet_height" value="10">
+	Maximum Allowable Moment (kNm): <input type="text" id="sheet_moment" value="50">
+	</div>
+
+	<script>
+	$("#sheet_form")[0].style.display = "none";
+
+	$("#mode").change(function(){
+		$("#sheet_form")[0].style.display = "none";
+		$("#gravity_form")[0].style.display = "none";
+
+		if ($("#mode").val() == "sheet")
+		{
+			$("#sheet_form")[0].style.display = "block";
+		}
+		if ($("#mode").val() == "gravity")
+		{
+			$("#gravity_form")[0].style.display = "block";
+		}
+		redraw();
+	});
+
+	</script>
 
 </article>
 
 <article id="retained_soil">
 	<h2>Retained Soil</h2>
-	<pre>Stage 2 of 5</pre>
+	<pre>Stage 2 of 6</pre>
 
 	<p>Information on the retained soil which will apply loading conditions on the wall, from the surface top to the bottom of the retaining wall:</p>
 
-	<div class="soil_name">Name</div><div class="soil_depth">Depth</div><div class="soil_dry">Dry Weight</div><div class="soil_wet">Wet Weight</div><div class="soil_angle">Angle</div>
+	<p>Co-Efficient: <select id="soil_coefficient"><option value="a">Ka - Active</option><option value="0">Ko - At Rest</option></select></p>
+
+	<p>Layers:</p>
+
+	<div class="soil_name">Name</div><div class="soil_depth">Depth (m)</div><div class="soil_dry">Dry Weight (kN/m3)</div><div class="soil_wet">Wet Weight (kN/m3)</div><div class="soil_angle">Angle (Deg)</div>
 	<p id="soil_form">
 	</p>
 	<a id="add_retained_layer">Add new layer...</a>
@@ -159,11 +200,11 @@
 
 <article id="cover_soil">
 	<h2>Cover Soil</h2>
-	<pre>Stage 3 of 5</pre>
+	<pre>Stage 3 of 6</pre>
 
 	<p>Information on the soil on the passive side of the wall</p>
 
-	<div class="soil_name">Name</div><div class="soil_depth">Depth</div><div class="soil_dry">Dry Weight</div><div class="soil_wet">Wet Weight</div><div class="soil_angle">Angle</div>
+	<div class="soil_name">Name</div><div class="soil_depth">Depth (m)</div><div class="soil_dry">Dry Weight (kN/m3)</div><div class="soil_wet">Wet Weight (kN/m3)</div><div class="soil_angle">Angle (Deg)</div>
 	<p id="cover_form">
 	</p>
 	<a id="add_cover_layer">Add new layer...</a>
@@ -171,7 +212,7 @@
 	<script>
 	function new_cover_layer()
 	{
-		$("#cover_form").append('<div class="cover_layer"><input type="text" class="soil_name"><input type="text" class="soil_depth" value=5><input type="text" value=15 class="soil_dry"><input type="text" value=20 class="soil_wet"><input type="text" value=30 class="soil_angle"><input type="button" class="delete" value="X"></div>');
+		$("#cover_form").append('<div class="cover_layer"><input type="text" class="soil_name"><input type="text" class="soil_depth" value="3"><input type="text" value="15" class="soil_dry"><input type="text" value="20" class="soil_wet"><input type="text" value="30" class="soil_angle"><input type="button" class="delete" value="X"></div>');
 	}
 
 	$("#add_cover_layer").click(function(){new_cover_layer(); redraw(); });
@@ -187,14 +228,39 @@
 
 <article id="bearing_soil">
 	<h2>Bearing Soil</h2>
-	<pre>Stage 4 of 5</pre>
+	<pre>Stage 4 of 6</pre>
 
 	<p>Information on the bearing soil that the wall will sit on</p>
 
-	Unit Weight: <input type="text" id="bearing_weight" value=20>
-	Angle: <input type="text" id="bearing_angle" value=30>
-	Shear Strength: <input type="text" id="bearing_strength" value=40>
+	<div id="bearing_form">
+	Dry Weight (kN/m3): <input type="text" id="bearing_dry_weight" value="15">
+	Wet Weight (kN/m3): <input type="text" id="bearing_wet_weight" value="20">
+	Angle (Deg): <input type="text" id="bearing_angle" value="20">
+	Shear Strength (kPa): <input type="text" id="bearing_strength" value="40">
+	</div>
+	<div id="bearing_note">
+		Not required for sheet pile
+	</div>
+
 </article>
+
+<script>
+	$("#bearing_note")[0].style.display = "none";
+
+	$("#mode").change(function(){
+		$("#bearing_form")[0].style.display = "none";
+		$("#bearing_note")[0].style.display = "none";
+
+		if ($("#mode").val() == "sheet")
+		{
+			$("#bearing_note")[0].style.display = "block";
+		}
+		if ($("#mode").val() == "gravity")
+		{
+			$("#bearing_form")[0].style.display = "block";
+		}
+	});
+</script>
 
 <article id="water_table">
 	<h2>Water Table</h2>
@@ -202,14 +268,14 @@
 
 	<p>Position of the water table in relation to the bottom of the retaining wall</p>
 
-	<input class="inline" type="checkbox" id="check_inside">Inner-side of wall:
-	<input type="text" id="water_inside" value=2>
+	<input class="inline" type="checkbox" id="check_inside">Inner-side of wall (m):
+	<input type="text" id="water_inside" value="2">
 
-	<input class="inline" type="checkbox" id="check_under">Under wall:
+	<input class="inline" type="checkbox" id="check_under">Under wall (m):
 	<input type="text" id="water_under" value="-5">
 
-	<input class="inline" type="checkbox" id="check_outside">Outer-Side of wall:
-	<input type="text" id="water_outside" value=2>
+	<input class="inline" type="checkbox" id="check_outside">Outer-Side of wall (m):
+	<input type="text" id="water_outside" value="2">
 
 	<script>
 	$('#water_inside')[0].style.display = 'none';
@@ -254,7 +320,7 @@
 	Surcharge (kN/m): <input type="text" id="surcharge" value="0">
 
 	<p>Point Loads:</p>
-	<div class="pos_x">X</div><div class="pos_y">Y</div><div class="force_x">Fx</div><div class="force_y">Fy</div>
+	<div class="pos_x">X</div><div class="pos_y">Y</div><div class="force_x">Fx (kN)</div><div class="force_y">Fy (kN)</div>
 	<p id="force_form">
 	</p>
 	<a id="add_force_layer">Add new force...</a>
@@ -275,12 +341,14 @@
 	</script>
 </article>
 
+</nav>
+
 <!-- Drawing .................................................................. -->
 
 <div id="sketch">
-<img id="preview" style="width:100%; height:100%;" src="/" alt="No preview available">
-<div id="error">
-</div>
+<img id="preview" src="canvas.php" alt="No preview available">
+<img id="graph" src="canvas.php?" alt="No graph available">
+
 <script>
 
 $(document).on('change', 'input', function(){redraw()});
@@ -291,15 +359,13 @@ redraw();
 
 </script>
 </div>
-
-</nav>
-
-
+<div id="error"></div>
 <div id="solve">
 <a id="solve_button">Solve</a>	
 </div>
 
 <script>
+$("#graph")[0].style.display='none';
 $("#solve").click(function(){
 	if ($("#error").html() == '')
 	{
@@ -309,13 +375,16 @@ $("#solve").click(function(){
 		$("#input")[0].style.display = 'none';
 		$("#output")[0].style.display = 'block';
 		calculate();
+		$("#graph_choice").val('none');
 		document.location.href = "#"; 
 	}
 	else 
 	{
 		$("#solve_button").html('Solve');
 		$("#input")[0].style.display = 'block';
-		$("#output")[0].style.display = 'none';		
+		$("#output")[0].style.display = 'none';	
+		$("#graph")[0].style.display = 'none';
+		redraw();
 		document.location.href = "#"; 
 	}
 	}
@@ -330,126 +399,213 @@ $("#solve").click(function(){
 
 <nav id="output" style="display:none">
 	<article id="results">
+	<select id="graph_choice">
+		<option value="none">None</option>
+		<option value="weights" disabled="true">Weights</option>
+		<option value="v_stress1">Vertical Soil Stress (C1)</option>
+		<option value="v_stress2" disabled="true">Vertical Soil Stress (C2)</option>
+		<option value="h_stress1" disabled="true">Horizontal Soil Stress (C1)</option>
+		<option value="h_stress2" disabled="true">Horizontal Soil Stress (C2)</option></select>
+	<script>
+	$("#graph_choice").change(function(){
+		$("#graph")[0].style.display = 'block';
+
+		var option = $("#graph_choice").val();
+		if (option == 'none')
+		{
+			redraw();
+			src2 = '';
+			draw_graph();
+		}
+		else if (option == 'weights')
+		{
+			redraw();
+		}
+		else if (option == 'v_stress1')
+		{
+			draw_distrib(graph_switch(), 'v_1');
+			draw_graph();
+		}
+		else if (option == 'h_stress')
+		{
+			redraw('preview', 'sheet');
+		}
+	});
+	</script>
+
 	<h2>Results</h2>
 	<p>All results are to 3 s.f, roundings are not carried through calculation process. Positive forces are favourable whilst negative forces are unfavourable. Lever arms are taken as negative for vertical forces for correct sign convention.</p>
 
 	<h3>Headline Result - <span id="headline_result"></span></h3>
-	<table>
-		<tr><th><pre><u>Sliding</u></pre></th><th>Combination 1</th><th>Combination 2</th></tr>
+	<table class="headline_result">
+		<tr class="subtitle"><th colspan="4"><pre><u>Sliding</u></pre></th><th colspan="3">Combination 1</th><th colspan="3">Combination 2</th></tr>
 		<tbody>
-			<tr><td>Unfavourable</td><td id="unfavourable_slide_1"></td><td id="unfavourable_slide_2"></td></tr>
-			<tr><td>Favourable</td><td id="favourable_slide_1"></td><td id="favourable_slide_2"></td></tr>
-			<tr><td>Utilisation Factor</td><td id="utilisation_slide_1"></td><td id="utilisation_slide_2"></td></tr>
+			<tr><td colspan="4">Unfavourable</td><td colspan="3" id="unfavourable_slide_1"></td><td colspan="3" id="unfavourable_slide_2"></td></tr>
+			<tr><td colspan="4">Favourable</td><td colspan="3" id="favourable_slide_1"></td><td colspan="3" id="favourable_slide_2"></td></tr>
+			<tr><td colspan="4">Utilisation Factor</td><td colspan="3" id="utilisation_slide_1"></td><td colspan="3" id="utilisation_slide_2"></td></tr>
 		</tbody>
-		<tr><th><pre><u>Overturning</u></pre></th><th>Combination 1</th><th>Combination 2</th></tr>
+		<tr class="subtitle"><th colspan="4"><pre><u>Overturning</u></pre></th><th colspan="3">Combination 1</th><th colspan="3">Combination 2</th></tr>
 		<tbody>
-			<tr><td>Unfavourable</td><td id="unfavourable_over_1"></td><td id="unfavourable_over_2"></td></tr>
-			<tr><td>Favourable</td><td id="favourable_over_1"></td><td id="favourable_over_2"></td></tr>
-			<tr><td>Utilisation Factor</td><td id="utilisation_over_1"></td><td id="utilisation_over_2"></td></tr>
+			<tr><td colspan="4">Unfavourable</td><td colspan="3" id="unfavourable_over_1"></td><td colspan="3" id="unfavourable_over_2"></td></tr>
+			<tr><td colspan="4">Favourable</td><td colspan="3" id="favourable_over_1"></td><td colspan="3" id="favourable_over_2"></td></tr>
+			<tr><td colspan="4">Utilisation Factor</td><td colspan="3" id="utilisation_over_1"></td><td colspan="3" id="utilisation_over_2"></td></tr>
 		</tbody>
-		<tr><th><pre><u>Eccentricity</u></pre></th><th>Combination 1</th><th>Combination 2</th></tr>
+	<div id="headline2">
+		<tr class="no_border"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+		<tr class="subtitle"><th colspan="4"><pre><u>Eccentricity</u></pre></th><th colspan="3">Combination 1</th><th colspan="3">Combination 2</th></tr>
 		<tbody>
-			<tr><td>Total Vertical</td><td id="total_vertical_1"></td><td id="total_vertical_2"></td></tr>
-			<tr><td>Total Moment (about centre)</td><td id="total_moment_1"></td><td id="total_moment_2"></td></tr>
-			<tr><td>Width</td><td id="base_width_1"></td><td id="base_width_2"></td></tr>		
-			<tr><td>Eccentricity</td><td id="eccentricity_1"></td><td id="eccentricity_2"></td></tr>
+			<tr><td colspan="4">Total Vertical</td><td colspan="3" id="total_vertical_1"></td><td colspan="3" id="total_vertical_2"></td></tr>
+			<tr><td colspan="4">Total Moment (about centre)</td><td colspan="3" id="total_moment_1"></td><td colspan="3" id="total_moment_2"></td></tr>
+			<tr><td colspan="4">Width [Width / 6]</td><td colspan="3" id="base_width_1"></td><td colspan="3" id="base_width_2"></td></tr>		
+			<tr><td colspan="4">Eccentricity</td><td colspan="3" id="eccentricity_1"></td><td colspan="3" id="eccentricity_2"></td></tr>
 		</tbody>
+		<tr class="subtitle"><th colspan="4"><pre><u>Bearing Capacity</u></pre></th><th colspan="3">Combination 1</th><th colspan="3">Combination 2</th></tr>
+		<tbody>
+			<tr><td colspan="4">Bearing Pressure (Toe)</td><td colspan="3" id="toe_pressure_1"></td><td colspan="3" id="toe_pressure_2"></td></tr>
+			<tr><td colspan="4">Allowable Pressure (Drained)</td><td colspan="3" id="max_d_1"></td><td colspan="3" id="max_d_2"></td></tr>
+			<tr><td colspan="4">Allowable Pressure (Undrained)</td><td colspan="3" id="max_u_1"></td><td colspan="3" id="max_u_2"></td></tr>		
+		</tbody>
+	</div>
 	</table>
 
 	<h3>Horizontal Forces</h3>
 	<table>
-	<tr><th colspan="10"><pre><u>Unfavourable</u></pre></th></tr>
-	<tr><th colspan="10"><pre>Retained soil - Vertical Stress</pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre><u>Unfavourable</u></pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Retained soil - Vertical Stress</pre></th></tr>
 	<tr><th colspan="4">Layer</th><th>Sv (Top)</th><th>Weight</th><th>Depth</th><th>Sv (bot)</th><th>u</th><th>Sv' (bot)</th>
 	<tbody id="s_retained"></tbody>
 
-	<tr><th colspan="10"><pre>Retained soil - Horizontal Stress</pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Retained soil - Horizontal Stress</pre></th></tr>
 	<tr><th>Layer</th><th>Sv'</th><th>K (C2)</th><th>Sh' (C2)</th><th>Sh (C2)</th><th>F (C2)</th><th>K (C1)</th><th>Sh' (C1)</th><th>Sh (C1)</th><th>Factored F (C1)</th></tr>
 	<tbody id="h_retained"></tbody>
-	<tr><th colspan="10"><pre>Point loads</pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Point loads</pre></th></tr>
 	<tbody id="h_unfav"></tbody>
+	<tr class="no_border"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	<tr><th colspan="5"><pre><u>Total</u></pre></th><th>Total Unfav H (C2)</th><th colspan="3"></th><th>Total Unfav H (C1)</th></tr>
+	<tr><td colspan="5"></td><td id="uh2" class="headline"></td><td colspan="3"></td><td id="uh1" class="headline"></td></tr>
 
-	<tr><th colspan="5"><pre><u>Total</u></pre></th><th>Total Unfav H (C2)</th><th></th><th></th><th></th><th>Total Unfav H (C1)</th></tr>
-	<tr><td colspan="5"></td><td id="uh2" class="headline"></td><td></td><td></td><td></td><td id="uh1" class="headline"></td></tr>
-
-	<tr><th colspan="10"><pre><u>Favourable</u></pre></th></tr>
-	<tr><th colspan="10"><pre>Cover soil - Vertical Stress</pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre><u>Favourable</u></pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Cover soil - Vertical Stress</pre></th></tr>
 	<tr><th colspan="4">Layer</th><th>Sv (Top)</th><th>Weight</th><th>Depth</th><th>Sv (bot)</th><th>u</th><th>Sv' (bot)</th>
 	<tbody id="s_cover"></tbody>
 
-	<tr><th colspan="10"><pre>Cover soil - Horizontal Stress</pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Cover soil - Horizontal Stress</pre></th></tr>
 	<tr><th>Layer</th><th>Sv'</th><th>K (C2)</th><th>Sh' (C2)</th><th>Sh (C2)</th><th>F (C2)</th><th>K (C1)</th><th>Sh' (C1)</th><th>Sh (C1)</th><th>Factored F (C1)</th></tr>
 	<tbody id="h_cover"></tbody>
-	<tr><th colspan="10"><pre>Point loads</pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Point loads</pre></th></tr>
+	<tr><th colspan='5'>Name</th><th>Force (C2)</th><th colspan="2"></th><th>Factor (C1)</th><th>Factored Force (C1)</th></tr>
 	<tbody id="h_fav"></tbody>
+	<tr class="no_border"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 	<tr><th colspan="5"><pre><u>Total</u></pre></th><th>Total Fav H (C2)</th><th colspan="3"></th><th>Total Fav H (C1)</th></tr>
-	<tr><td colspan="5"></td><td id="fh2" class="headline"></td><td></td><td></td><td></td><td id="fh1" class="headline"></td></tr>
+	<tr><td colspan="5"></td><td id="fh2" class="headline"></td><td colspan="3"></td><td id="fh1" class="headline"></td></tr>
 
 	</table>
+
+	<div id="vertical">
 
 	<h3>Vertical Forces</h3>
 	<table>
-	<tr><th colspan="10"><pre><u>Areas, &amp; Weights</u></pre></th></tr>
-	<tr><th colspan="10"><pre>Wall:</pre></th></tr>
-	<tr><th>Shape</th><th>Width</th><th>Height</th><th>Area</th><th>Density</th><th>Weight (C2)</th><th></th><th></th><th>Factor (C1)</th><th>Factored Weight (C1)</th></tr>
+	<tr class="subtitle"><th colspan="10"><pre><u>Areas, &amp; Weights</u></pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Wall:</pre></th></tr>
+	<tr><th>Shape</th><th>Width</th><th>Height</th><th>Area</th><th>Density</th><th>Weight (C2)</th><th colspan="2"><th>Factor (C1)</th><th>Factored Weight (C1)</th></tr>
 	<tbody id="wall_areas"></tbody>
 
-	<tr><th colspan="10"><pre>Soil:</pre></th></tr>
-	<tr><th>Shape</th><th>Width</th><th>Height</th><th>Area</th><th>Density</th><th>Weight (C2)</th><th></th><th></th><th>Factor (C1)</th><th>Factored Weight (C1)</th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Soil:</pre></th></tr>
+	<tr><th>Shape</th><th>Width</th><th>Height</th><th>Area</th><th>Density</th><th>Weight (C2)</th><th colspan="2"></th><th>Factor (C1)</th><th>Factored Weight (C1)</th></tr>
 	<tbody id="soil_areas"></tbody>
 	
-	<tr><th colspan="10"><pre><u>Other</u></pre></th></tr>
-	<tr><th colspan='5'>Name</th><th>Weight (C2)</th><th></th><th></th><th>Factor (C1)</th><th>Factored Weight (C1)</th></tr>
+	<tr class="subtitle"><th colspan="10"><pre><u>Other</u></pre></th></tr>
+	<tr><th colspan='5'>Name</th><th>Weight (C2)</th><th colspan="2"></th><th>Factor (C1)</th><th>Factored Weight (C1)</th></tr>
 	<tbody id="v_forces"></tbody>
 
-	<tr><th colspan="5"><pre><u>Total</u></pre></th><th>Total Vertical (C2)</th><th></th><th></th><th></th><th>Total Vertical (C1)</th></tr>
-	<tr><td colspan="5"></td><td class="headline" id="v2"></td><td></td><td></td><td></td><td class="headline" id="v1"></td></tr>
+	<tr class="no_border"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	<tr><th colspan="5"><pre><u>Total</u></pre></th><th>Total Vertical (C2)</th><th colspan="3"></th><th>Total Vertical (C1)</th></tr>
+	<tr><td colspan="5"></td><td class="headline" id="v2"></td><td colspan="3"></td><td class="headline" id="v1"></td></tr>
 	</table>
+
+	</div>
 
 	<h3>Moments [for Overturning]</h3>
 	<table>
-	<tr><th colspan="10"><pre><u>Vertical Forces</u></pre></th></tr>
-	<tr><th colspan="3">Name</th><th>Unfactored Force</th><th>Moment Arm</th><th>Moment (C2)</th><th></th><th></th><th>Factor (C1)</th><th>Factored Moment (C1)</th></tr>
+	<tr class="subtitle"><th colspan="10"><pre><u>Vertical Forces</u></pre></th></tr>
+	<tr><th colspan="3">Name</th><th>Unfactored Force</th><th>Moment Arm</th><th>Moment (C2)</th><th colspan="2"></th><th>Factor (C1)</th><th>Factored Moment (C1)</th></tr>
 	<tbody id="v_wall_moments"></tbody>
 	<tbody id="v_soil_moments"></tbody>
 	<tbody id="v_moments"></tbody>
 
-	<tr><th colspan="10"><pre><u>Horizontal Forces</u></pre></th></tr>
-	<tr><th colspan="10"><pre>Soil</pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre><u>Horizontal Forces</u></pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Soil</pre></th></tr>
 	<tr><th>Layer</th><th>Depth</th><th>Sh Top (C2)</th><th>Sh Bot (C2)</th><th>Moment Arm</th><th>Moment (C2)</th><th>Sh Top (C1)</th><th>Sh Bot (C1)</th><th>Moment Arm</th><th>Factored Moment (C1)</th></tr>
 	<tbody id="m_retained"></tbody>
 	<tbody id="m_cover"></tbody>
 
-	<tr><th colspan="10"><pre>Other</pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Other</pre></th></tr>
 	<tr><th colspan="3">Name</th><th>Unfactored Force</th><th>Moment Arm</th><th>Moment (C2)</th><th colspan="2"></th><th>Factor (C1)</th><th>Moment (C1)</th></tr>
 	<tbody id="h_moments"></tbody>
 
-	<tr><th colspan="10"><pre><u>Total</u></pre></th></tr>
-	<tr><td colspan="4"></td><td>Favourable (C2)</td><td class="headline" id="m2_fav"></td><td></td><td></td><td>Favourable (C1)</td><td class="headline" id="m1_fav"></td></tr>
-	<tr><td colspan="4"></td><td>Unfavourable (C2)</td><td class="headline" id="m2_unfav"></td><td></td><td></td><td>Unfavourable (C1)</td><td class="headline" id="m1_unfav"></td></tr>
+	<tr class="no_border"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+
+	<tr class="subtitle"><th colspan="10"><pre><u>Total</u></pre></th></tr>
+	<tr><td colspan="4"></td><td>Favourable (C2)</td><td class="headline" id="m2_fav"></td><td colspan="2"></td><td>Favourable (C1)</td><td class="headline" id="m1_fav"></td></tr>
+	<tr><td colspan="4"></td><td>Unfavourable (C2)</td><td class="headline" id="m2_unfav"></td><td colspan="2"></td><td>Unfavourable (C1)</td><td class="headline" id="m1_unfav"></td></tr>
 	</table>
+
+	<div id="eccentricity">
 	<h3>Moments [for Eccentricity]</h3>
 	<table>
-	<tr><th colspan="10"><pre><u>Vertical Forces</u></pre></th></tr>
-	<tr><th colspan="3">Name</th><th>Unfactored Force</th><th>Moment Arm</th><th>Moment (C2)</th><th></th><th></th><th>Factor (C1)</th><th>Factored Moment (C1)</th></tr>
+	<tr class="subtitle"><th colspan="10"><pre><u>Vertical Forces</u></pre></th></tr>
+	<tr><th colspan="3">Name</th><th>Unfactored Force</th><th>Moment Arm</th><th>Moment (C2)</th><th colspan="2"></th><th>Factor (C1)</th><th>Factored Moment (C1)</th></tr>
 	<tbody id="v_wall_moments_e"></tbody>
 	<tbody id="v_soil_moments_e"></tbody>
 	<tbody id="v_moments_e"></tbody>
 
-	<tr><th colspan="10"><pre><u>Horizontal Forces</u></pre></th></tr>
-	<tr><th colspan="10"><pre>Soil</pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre><u>Horizontal Forces</u></pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Soil</pre></th></tr>
 	<tr><th>Layer</th><th>Depth</th><th>Sh Top (C2)</th><th>Sh Bot (C2)</th><th>Moment Arm</th><th>Moment (C2)</th><th>Sh Top (C1)</th><th>Sh Bot (C1)</th><th>Moment Arm</th><th>Factored Moment (C1)</th></tr>
 	<tbody id="m_retained_e"></tbody>
 	<tbody id="m_cover_e"></tbody>
 
-	<tr><th colspan="10"><pre>Other</pre></th></tr>
+	<tr class="subtitle"><th colspan="10"><pre>Other</pre></th></tr>
 	<tr><th colspan="3">Name</th><th>Unfactored Force</th><th>Moment Arm</th><th>Moment (C2)</th><th colspan="2"></th><th>Factor (C1)</th><th>Moment (C1)</th></tr>
 	<tbody id="h_moments_e"></tbody>
 
-	<tr><th colspan="5"><pre><u>Total</u></pre></th><th>Total Moments (C2)</th><th></th><th></th><th></th><th>Total Moments (C1)</th></tr>
-	<tr><td colspan="5"></td><td class="headline" id="m2_e"></td><td></td><td></td><td></td><td class="headline" id="m1_e"></td></tr>
+	<tr class="no_border"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+
+	<tr><th colspan="5"><pre><u>Total</u></pre></th><th>Total Moments (C2)</th><th colspan="3"></th><th>Total Moments (C1)</th></tr>
+	<tr><td colspan="5"></td><td class="headline" id="m2_e"></td><td colspan="3"></td><td class="headline" id="m1_e"></td></tr>
 
 	</table>
+	</div>
+
+	<div id="terzaghi">
+	<h3>Bearing Capacity</h3>
+	<table>
+	<tr class="subtitle"><th colspan="10"><pre><u>Drained</u></pre></th></tr>
+	<tr class="subtitle"><th colspan="2"></th><th colspan="4">Combination 1</th><th colspan="4">Combination 2</th></tr>
+	<tr><th colspan="2"></th><th>N</th><th>Shape</th><th>Inclination</th><th>Depth</th><th>N</th><th>Shape</th><th>Inclination</th><th>Depth</th></tr>
+	<tr><td colspan="2">Shear Strength</td><td id="td_nc1"></td><td id="td_sc1"></td><td id="td_ic1"></td><td id="td_hc1"></td><td id="td_nc2"></td><td id="td_sc2"></td><td id="td_ic2"></td><td id="td_hc2"></td>
+	<tr><td colspan="2"></td><td class="right">c=</td><td id="td_c1"></td><td class="right">&#928; =</td><td id="td_pc1"></td><td class="right">c=</td><td id="td_c2"><td class="right">&#928; =</td><td id="td_pc2"></td></tr>
+	<tr><td colspan="2">Surcharge</td><td id="td_nq1"></td><td id="td_sq1"></td><td id="td_iq1"></td><td id="td_hq1"></td><td id="td_nq2"></td><td id="td_sq2"></td><td id="td_iq2"></td><td id="td_hq2"></td>
+	<tr><td colspan="2"></td><td class="right">q=</td><td id="td_q1"></td><td class="right">&#928; =</td><td id="td_pq1"></td><td class="right">q=</td><td id="td_q2"></td><td class="right">&#928; =</td><td id="td_pq2"></td></tr>
+	<tr><td colspan="2">Depth</td><td id="td_ng1"></td><td id="td_sg1"></td><td id="td_ig1"></td><td id="td_hg1"></td><td id="td_ng2"></td><td id="td_sg2"></td><td id="td_ig2"></td><td id="td_hg2"></td>
+	<tr><td colspan="2"></td><td class="right">0.5&#947;B'=</td><td id="td_g1"></td><td class="right">&#928; =</td><td id="td_pg1"></td><td class="right">0.5&#947;B'=</td><td id="td_g2"></td><td class="right">&#928; =</td><td id="td_pg2"></td></tr>
+	<tr class="no_border"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	<tr><td colspan="4"></td><td>Total Capacity (C1)</td><td class="headline" id="td_cap1"></td><td colspan="2"></td><td>Total Capacity (C2)</td><td class="headline" id="td_cap2"></td></tr>
+	
+	<tr class="subtitle"><th colspan="10"><pre><u>Undrained</u></pre></th></tr>
+	<tr class="subtitle"><th colspan="2"></th><th colspan="4">Combination 1</th><th colspan="4">Combination 2</th></tr>
+	<tr><th colspan="2"></th><th>N</th><th>Shape</th><th>Inclination</th><th>Depth</th><th>N</th><th>Shape</th><th>Inclination</th><th>Depth</th></tr>
+	<tr><td colspan="2">Shear Strength</td><td id="tu_nc1"></td><td id="tu_sc1"></td><td id="tu_ic1"></td><td id="tu_hc1"></td><td id="tu_nc2"></td><td id="tu_sc2"></td><td id="tu_ic2"></td><td id="tu_hc2"></td>
+	<tr><td colspan="2"></td><td class="right">c=</td><td id="tu_c1"></td><td class="right">&#928; =</td><td id="tu_pc1"></td><td class="right">c=</td><td id="tu_c2"><td class="right">&#928; =</td><td id="tu_pc2"></td></tr>
+	<tr><td colspan="2">Surcharge</td><td id="tu_nq1"></td><td id="tu_sq1"></td><td id="tu_iq1"></td><td id="tu_hq1"></td><td id="tu_nq2"></td><td id="tu_sq2"></td><td id="tu_iq2"></td><td id="tu_hq2"></td>
+	<tr><td colspan="2"></td><td class="right">q=</td><td id="tu_q1"></td><td class="right">&#928; =</td><td id="tu_pq1"></td><td class="right">q=</td><td id="tu_q2"></td><td class="right" class="right">&#928; =</td><td id="tu_pq2"></td></tr>
+	<tr><td colspan="2">Depth</td><td id="tu_ng1"></td><td id="tu_sg1"></td><td id="tu_ig1"></td><td id="tu_hg1"></td><td id="tu_ng2"></td><td id="tu_sg2"></td><td id="tu_ig2"></td><td id="tu_hg2"></td>
+	<tr><td colspan="2"></td><td class="right">0.5&#947;B'=</td><td id="tu_g1"></td><td class="right">&#928; =</td><td id="tu_pg1"></td><td class="right">0.5&#947;B'=</td><td id="tu_g2"></td><td class="right">&#928; =</td><td id="tu_pg2"></td></tr>
+	<tr class="no_border"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	<tr><td colspan="4"></td><td>Total Capacity (C1)</td><td class="headline" id="tu_cap1"></td><td colspan="2"></td><td>Total Capacity (C2)</td><td class="headline" id="tu_cap2"></td></tr>
+	
+	</table>
+	</div>
 
 	</article>
 </nav>

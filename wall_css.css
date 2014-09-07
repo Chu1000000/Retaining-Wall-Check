@@ -16,11 +16,11 @@ aside {
 
 #output {
 	display:none;
-	width: 100%;
+	
 }
 
 nav {
-	width:45%;
+	width:65%;
 }
 
 span {
@@ -28,7 +28,7 @@ span {
 }
 
 #sketch {
-	width: 45%;
+	width: 30%;
 	height: 100%;
 	position:fixed;
 	top: 0px;
@@ -36,6 +36,18 @@ span {
 	text-align: right;
 }
 
+#preview, #graph {
+	position:fixed;
+	top: 0px;
+	right: 0px;
+}
+
+#preview {
+	z-index: 1;
+}
+#graph {
+	z-index: 2;
+}
 
 .form {
 	width:100%;
@@ -89,12 +101,16 @@ select {
 
 #error {
 	color: red;
+	width: 30%;
+	position:fixed;
+	bottom: 10%;
+	right: 0px;
+	display: block;
 }
 
 #solve {
-	width: 10%;
+	width: 20%;
 	height: 10%;
-	background-color: #666666;
 	position:fixed;
 	text-align: center;
 	bottom: 0px;
@@ -102,28 +118,62 @@ select {
 	display:table;
 }
 
-#solve:hover {
+#solve_button:hover {
 	background-color: #BBBBBB;
 }
 
 #solve_button {
 	display: table-cell;
+	background-color: #666666;
 	vertical-align: middle;
 }
 
 table, #headline {
-	width:90%;
+	width:95%;
 	border: 1px solid black;
 }
 
-th {
-	text-align: left;
+.headline_result {
+	text-align:left;
 }
 
-table td {
+table {
+	text-align:left;
+}
+
+td {
+	text-align:center;
+}
+
+table, td, th {
+	border-collapse: collapse;
+	border-spacing: 0px;
+	border: 1px solid black;
+}
+
+tr {
+	width:100%;
+}
+
+td, th {
 	width: 10%;
+	border-top: 0px solid black;	
+}
+
+td, .subtitle td, .subtitle th {
+	border-bottom: 0px solid black;
+}
+
+.no_border td, .no_border th{
+	border: 0px solid white;
+	padding: 0px;
+	margin: 0px;
 }
 
 .headline {
 	background-color: #AACCCC;
+}
+
+.right {
+	text-align: right;
 }

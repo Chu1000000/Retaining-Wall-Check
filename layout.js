@@ -61,6 +61,10 @@ axes = ((typeof axes !== 'undefined') ? axes : {left_edge:0, right_edge:0});
 // Prelims
 regions = {rectangles: [], triangles: []};
 region_type('wall', i.wall_weight);
+
+if (i.mode == 'gravity')
+{
+
 var back_detail_start = 0;
 var front_detail_start = 0;
 var footing = 0;
@@ -117,6 +121,7 @@ if (i.front_detailing == 'inclined')
 	region_triangle(i.toe_length, i.base_thickness, -chamfer_width, chamfer_height, 'wall');
 	front_detail_start = i.base_thickness + chamfer_height;
 }
+}
 
 // Retaining Soil ------------------------------------------------------------------
 var current_depth = i.total_retained + i.base_thickness;
@@ -168,8 +173,9 @@ for (a = 0; a < i.retained.length; a++)
 
 	if (detail == true)
 	{
-		layer_top = detail_start - current_depth;
-		layer_bot = detail_start - current_depth + depth;
+		var layer_top = detail_start - current_depth;
+		var layer_bot = detail_start - current_depth + depth;
+		var detail_width = 0;
 
 		if (i.back_detailing == 'inclined')
 		{
@@ -229,7 +235,10 @@ for (a = 0; a < i.cover.length; a++)
 		if ((current_depth - depth) >= detail_start)
 		{
 			// No detailing to worry about
-			region_rectangle(0, current_depth - depth, i.toe_length, depth, 'cover_' + a);
+			if (i.toe_length > 0)
+			{
+				region_rectangle(0, current_depth - depth, i.toe_length, depth, 'cover_' + a);
+			}
 		}
 		else
 		{
@@ -264,8 +273,9 @@ for (a = 0; a < i.cover.length; a++)
 
 	if (detail == true)
 	{
-		layer_top = detail_start - current_depth;
-		layer_bot = detail_start - current_depth + depth;
+		var layer_top = detail_start - current_depth;
+		var layer_bot = detail_start - current_depth + depth;
+		var detail_width = 0;
 
 		if (i.front_detailing == 'inclined')
 		{
@@ -330,6 +340,7 @@ function change_base(num, from, to, length)
 }
 
 var src = '';
+var src2 = '';
 var colour_types = [];
 
 function colour_type (name, colour)
@@ -337,8 +348,9 @@ function colour_type (name, colour)
 	colour_types[name] = colour;
 }
 
-function draw_line (axes, left_x, left_y, right_x, right_y)
+function draw_line (axes, left_x, left_y, right_x, right_y, colour, src2)
 {
+
 	if (right_x < left_x)
 	{
 		var a = left_x;
@@ -358,10 +370,19 @@ function draw_line (axes, left_x, left_y, right_x, right_y)
 	var left_x = Math.floor(axes.o_x + axes.scale * left_x);
 	var left_y = Math.floor(axes.o_y - axes.scale * left_y);	
 
-	src = src + "w" + change_base(left_x, 10, 36, 4) + "" + change_base(left_y, 10, 36, 4) + "" + change_base(width, 10, 36, 4) + "" + change_base(height, 10, 36, 4) + ";";
+	var append = "l" + change_base(left_x, 10, 36, 4) + "" + change_base(left_y, 10, 36, 4) + "" + change_base(width, 10, 36, 4) + "" + change_base(height, 10, 36, 4) + "" + colour + ";";
+
+	if (typeof src2 === 'undefined')
+	{
+		src = src + append;
+	}
+	else
+	{
+		src2 = src2 + append;
+	}
 }
 
-function draw_rectangle (axes, bottom_x, bottom_y, width, height, type)
+function draw_rectangle (axes, bottom_x, bottom_y, width, height, type, src2)
 {
 	var colour = colour_types[type];
 	var min_x = Math.floor(axes.o_x + axes.scale * bottom_x);
@@ -369,10 +390,19 @@ function draw_rectangle (axes, bottom_x, bottom_y, width, height, type)
 	var max_x = Math.floor(axes.o_x + axes.scale * (bottom_x + width));
 	var min_y = Math.floor(axes.o_y - axes.scale * (bottom_y + height));
 
-	src = src + "r" + change_base(min_x, 10, 36, 4) + "" + change_base(min_y, 10, 36, 4) + "" + change_base(Math.abs(max_x - min_x), 10, 36, 4) + "" + change_base(Math.abs(max_y - min_y), 10, 36, 4) + "" + colour + ";";
+	var append = "r" + change_base(min_x, 10, 36, 4) + "" + change_base(min_y, 10, 36, 4) + "" + change_base(Math.abs(max_x - min_x), 10, 36, 4) + "" + change_base(Math.abs(max_y - min_y), 10, 36, 4) + "" + colour + ";";
+
+	if (typeof src2 === 'undefined')
+	{
+		src = src + append;
+	}
+	else
+	{
+		src2 = src2 + append;
+	}
 }
 
-function draw_triangle(axes, x_1, y_1, width, height, type)
+function draw_triangle(axes, x_1, y_1, width, height, type, src2)
 {
 	var colour = colour_types[type];
 	var describe;
@@ -397,18 +427,36 @@ function draw_triangle(axes, x_1, y_1, width, height, type)
 		describe = 'd';
 	}
 
-	src = src + describe + change_base(x_1, 10, 36, 4) + "" + change_base(y_1, 10, 36, 4) + "" + change_base (Math.abs(x_2 - x_1), 10, 36, 4) + "" + change_base(Math.abs(y_2 - y_1), 10, 36, 4) + "" + colour + ";";
+	var append = describe + change_base(x_1, 10, 36, 4) + "" + change_base(y_1, 10, 36, 4) + "" + change_base (Math.abs(x_2 - x_1), 10, 36, 4) + "" + change_base(Math.abs(y_2 - y_1), 10, 36, 4) + "" + colour + ";";
+
+	if (typeof src2 === 'undefined')
+	{
+		src = src + append;
+	}
+	else
+	{
+		src2 = src2 + append;
+	}
 }
 
-function draw_surcharge(axes, x, y)
+function draw_surcharge(axes, x, y, src2)
 {
 	x = axes.o_x + axes.scale * x;
 	y = axes.o_y - axes.scale * y;
 
-	src = src + "s" + change_base(x, 10, 36, 4) + "" + change_base(y, 10, 36, 4) + ";";
+	var append = "s" + change_base(x, 10, 36, 4) + "" + change_base(y, 10, 36, 4) + ";";
+
+	if (typeof src2 === 'undefined')
+	{
+		src = src + append;
+	}
+	else
+	{
+		src2 = src2 + append;
+	}
 }
 
-function draw_arrow(axes, x_1, y_1, left_or_right, up_or_down)
+function draw_arrow(axes, x_1, y_1, left_or_right, up_or_down, src2)
 {
 	x_1 = axes.o_x + axes.scale * x_1;
 	y_1 = axes.o_y - axes.scale * y_1;
@@ -417,50 +465,121 @@ function draw_arrow(axes, x_1, y_1, left_or_right, up_or_down)
 	var x_2 = x_1 + left_or_right * length;
 	var y_2 = y_1 - up_or_down * length;
 
-	src = src + "p" + change_base(x_1, 10, 36, 4) + "" + change_base(y_1, 10, 36, 4) + change_base(x_2, 10, 36, 4) + change_base(y_2, 10, 36, 4) + ";";
+	var append = "p" + change_base(x_1, 10, 36, 4) + "" + change_base(y_1, 10, 36, 4) + change_base(x_2, 10, 36, 4) + change_base(y_2, 10, 36, 4) + ";";
+
+	if (typeof src2 === 'undefined')
+	{
+		src = src + append;
+	}
+	else
+	{
+		src2 = src2 + append;
+	}
 }
 
-function draw_clear()
+var distributions = [];
+function add_distrib(distrib)
 {
-	src = '';
+	distributions[distrib] = {low_y: 0, high_y: 0, max_x: 0, min_x: 0}
+	distributions[distrib].points = [];
+}
+
+function add_point(distrib, x, y)
+{
+	if (y < distributions[distrib].low_y)
+	{
+		distributions[distrib].low_y = y;
+	}
+	else if (y > distributions[distrib].high_y)
+	{
+		distributions[distrib].high_y = y;
+	}
+	if (x >= 0)
+	{
+		if (x > distributions[distrib].max_x)
+		{
+			distributions[distrib].max_x = x;
+		}
+	}
+	else
+	{
+		if (x < distributions[distrib].min_x)
+		{
+			distributions[distrib].min_x = x;
+		}
+	}	
+
+	distributions[distrib].points.push(x, y);
+}
+
+function draw_distrib(axes, distrib, max)
+{
+	var i;
+	var max =((distributions[distrib+"retained"].max_x > distributions[distrib+"cover"].max_x) ? distributions[distrib+"retained"].max_x  : distributions[distrib+"cover"].max_x);
+	var min =((distributions[distrib+"retained"].min_x < distributions[distrib+"cover"].min_x) ? distributions[distrib+"retained"].min_x  : distributions[distrib+"cover"].min_x);
+	min = Math.abs(min);
+
+	for (a = 0; a < 2; a++)
+	{
+	desc = ((a == 0) ? 'retained' : 'cover');
+	src2 = src2 + "g" + change_base(axes.o_x, 10, 36, 4) + change_base(axes.o_y - axes.scale * distributions[distrib + desc].low_y, 10, 36, 4) + change_base(axes.o_x, 10, 36, 4) + change_base(axes.o_y - axes.scale * distributions[distrib + desc].high_y, 10, 36, 4);
+	for (i = 0; i < distributions[distrib + desc].points.length; i++)
+	{
+		var max_use = ((distributions[distrib + desc].points[i] > 0) ? max : ((distributions[distrib + desc].points[i] < 0) ? min : 1));
+		var x = (((i % 2) == 0) ? axes.o_x + 500 * distributions[distrib + desc].points[i] / max_use : axes.o_y - axes.scale * distributions[distrib + desc].points[i]);
+		x = Math.round(x);
+		src2 = src2 + change_base(x, 10, 36, 4);
+	}
+	src2 = src2 + change_base(axes.o_x, 10, 36, 4) + change_base(axes.o_y - axes.scale * distributions[distrib + desc].low_y, 10, 36, 4);
+	src2 = src2 + ";";
+	}
+}
+
+function draw_graph()
+{
+	$("#graph").attr("src", "canvas.php?" + src2);
 }
 
 // --- Set palette up ----------------------------------------------
 function resize()
 {
-	var width = $(window).width() * 0.45;
+	var width = $(window).width() * 0.3;
 	var height = $(window).height() * 0.8;
 	if (width < height)
 	{
 		$("#preview").css("height", width + "px");
 		$("#preview").css("width", width + "px");
+		$("#graph").css("height", width + "px");
+		$("#graph").css("width", width + "px");
 	}
 	else
 	{
 		$("#preview").css("width", height + "px");
 		$("#preview").css("height", height + "px");
+		$("#graph").css("height", height + "px");
+		$("#graph").css("width", height + "px");
 	}	
 
 }
 
-function redraw()
+function new_axes(i)
 {
-	draw_clear();
-
-	var i = get_inputs();
-
 	var box_x = 1200;
 	var box_y = 1200;
-	var x_margin = 300;
-	var y_margin = 100;
+	var x_margin = 10;
+	var y_margin = 10;
 	var inner_x = box_x - 2 * x_margin;
 	var inner_y = box_y - 2 * y_margin;
 
 	var axes = {scale: 0, o_x: 0, o_y: 0, left_edge: 0, right_edge: 0};
 
-	if ((inner_y / i.total_height) < (inner_x / i.total_width))
+	if ((inner_y / i.total_height) < (inner_x / i.total_width) || i.mode == 'sheet')
 	{
 		axes.scale = inner_y / i.total_height;
+		if (i.shear_key !== true)
+		{
+			i.shear_key_height = 0;
+		}
 		axes.o_y = box_y - y_margin - axes.scale * i.shear_key_height;
 		axes.o_x = x_margin + (inner_x - axes.scale * i.total_width) / 2;
 		axes.left_edge = -axes.o_x / axes.scale;
@@ -473,6 +592,51 @@ function redraw()
 		axes.left_edge = -x_margin / axes.scale;
 		axes.right_edge = x_margin / axes.scale;
 		axes.o_y = box_y - (box_y - axes.scale * i.total_height) / 2;
+	}
+
+	return axes;
+}
+
+function graph_switch()
+{
+	var i = get_inputs();
+	if (i.mode != 'sheet')
+	{
+		redraw('preview', 'sheet');
+		src2 = '';
+		i.mode = 'sheet';
+		i.total_width = 0;
+		i.base_thickness = 0;
+		i.sheet_height = i.stem_height + i.base_thickness;
+
+	}
+	return new_axes(i);
+}
+
+function redraw(mode)
+{
+	src = '';
+
+	var i = get_inputs();
+	if (typeof mode !== 'undefined') 
+	{
+		i.mode = 'sheet';
+		i.sheet_height = i.stem_height + i.base_thickness;
+		i.total_width = 0;
+		i.stem_thickness = 0 ;
+		i.base_thickness = 0;
+		i.heel_length = 0;
+		i.toe_length = 0;
+		i.front_detailing = 'none';
+		i.back_detailing = 'none';
+		i.shear_key = false;
+	}
+
+	var axes = new_axes(i);
+	if (typeof mode !== 'undefined') 
+	{
+		axes.o_y = axes.o_y + i.base_thickness * axes.scale;
+		i.sheet_height = i.stem_height;
 	}
 	// Get regions ------------------------------------------------------------------
 	region(i, axes);
@@ -513,6 +677,7 @@ function redraw()
 	// Water Table ------------------------------------------------------------------
 	var detail;
 	var y;
+	var water = '0000FF';
 	if (i.check_inside)
 	{
 		detail = 0;
@@ -534,12 +699,12 @@ function redraw()
 				detail = i.toe_length - step_no * i.front_step_run;
 			}
 		}
-		draw_line(axes, axes.left_edge, y, i.toe_length - detail, y);
+		draw_line(axes, axes.left_edge, y, i.toe_length - detail, y, water);
 	}
 
 	if (i.check_under)
 	{
-		draw_line(axes, 0, i.water_under, i.total_width, i.water_under);
+		draw_line(axes, 0, i.water_under, i.total_width, i.water_under, water);
 	}
 
 	if (i.check_outside)
@@ -564,7 +729,7 @@ function redraw()
 			}
 		}
 
-		draw_line(axes, i.stem_thickness + i.toe_length + detail, y, i.total_width + axes.right_edge, y);
+		draw_line(axes, i.stem_thickness + i.toe_length + detail, y, i.total_width + axes.right_edge, y, water);
 	}
 
 	// Surcharge ------------------------------------------------------------------
@@ -589,5 +754,16 @@ function redraw()
 			draw_arrow(axes, i.force[a].pos_x, i.force[a].pos_y, 0, dir_y);
 		}
 	}
+
+	if (i.mode == 'sheet')
+	{
+		draw_line(axes, 0, 0, 0, i.sheet_height, colour_types['wall']);
+	}
+
+	if (typeof mode !== 'undefined') 
+	{
+		i.mode = mode;
+	}
+
 	$("#preview").attr("src", "canvas.php?" + src);
 }

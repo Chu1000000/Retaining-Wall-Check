@@ -3,18 +3,22 @@ define('ERROR', false);
 
 if (!ERROR)
 {
-	header ("Content-type: image/jpg"); 
+	header ("Content-type: image/png"); 
 }
 
 $image = ImageCreate(1200,1200);
 $background = ImageColorAllocate($image, 255, 255, 255);
-$blue = ImageColorAllocate($image, 0, 0, 255);
 $black = ImageColorAllocate($image, 0,0,0);
+ImageColorTransparent($image, $background);
+
 $get = array_keys($_GET);
+if (isset($get[0]))
+{
 $get = $get[0];
 
 $shapes = split(";", $get);
 $thickness = 10;
+
 
 foreach ($shapes as $shape)
 {
@@ -23,23 +27,39 @@ if (strlen($shape) >= 9 )
 
 	$type = substr($shape, 0, 1);
 
-	$origin_x = intval(substr($shape, 1, 4), 36);
-	$origin_y = intval(substr($shape, 5, 4), 36);
-
-	$width = (strlen($shape) >= 13) ? intval(substr($shape, 9, 4), 36) : null;
-	$height = (strlen($shape) >= 17) ? intval(substr($shape, 13, 4), 36) : null;
-
-	unset($fill);
-	if (strlen($shape) >= 23)
+	if ($type == 'g')
 	{
-		$fill_r = intval(substr($shape, 17, 2), 16);
-		$fill_g = intval(substr($shape, 19, 2), 16);
-		$fill_b = intval(substr($shape, 21, 2), 16);
-		$fill = ImageColorAllocate($image, $fill_r, $fill_g, $fill_b);
-	}
+		$points = array();
+		$count = floor(strlen($shape) / 4);
+		for ($i = 0; $i < $count; $i++)
+		{
+			$points[] = intval(substr($shape, $i * 4 + 1, 4), 36);
+		}	
 
-	$id = (strlen($shape) > 23) ? substr($shape, 23, strlen($shape) - 23) : null;
-	$no_poly = false;
+		imagesetthickness($image, 3);
+		imagepolygon($image, $points, count($points)/2, $black);
+		$no_poly = true;
+	}
+	else
+	{
+		$origin_x = intval(substr($shape, 1, 4), 36);
+		$origin_y = intval(substr($shape, 5, 4), 36);
+
+		$width = (strlen($shape) >= 13) ? intval(substr($shape, 9, 4), 36) : null;
+		$height = (strlen($shape) >= 17) ? intval(substr($shape, 13, 4), 36) : null;
+
+		unset($fill);
+		if (strlen($shape) >= 23)
+		{
+			$fill_r = intval(substr($shape, 17, 2), 16);
+			$fill_g = intval(substr($shape, 19, 2), 16);
+			$fill_b = intval(substr($shape, 21, 2), 16);
+			$fill = ImageColorAllocate($image, $fill_r, $fill_g, $fill_b);
+		}
+
+		$id = (strlen($shape) > 23) ? substr($shape, 23, strlen($shape) - 23) : null;
+		$no_poly = false;
+	}
 
 	// - Triangles (a-d) ---------------------------------------------------------
 	if ($type == 'a')
@@ -85,12 +105,12 @@ if (strlen($shape) >= 9 )
 						);
 	}
 
-	// - Dashed Line (w) -----------------------------------------------------
-	elseif ($type == 'w')
+	// - Line (w) -----------------------------------------------------
+	elseif ($type == 'l')
 	{
 		$no_poly = true;
 		imagesetthickness($image, $thickness);
-		imageline($image, $origin_x, $origin_y, $origin_x + $width, $origin_y + $height, $blue);
+		imageline($image, $origin_x, $origin_y, $origin_x + $width, $origin_y + $height, $fill);
 	}
 
 	// - Surcharge (s) -------------------------------------------------------
@@ -152,11 +172,12 @@ if (strlen($shape) >= 9 )
 	}
 }
 }
-
+}
 
 if (!ERROR)
 {
-	imagejpeg($image);
+
+	imagepng($image);
 }
 
 ?>

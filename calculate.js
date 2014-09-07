@@ -104,7 +104,7 @@ h2.fav = 0;
 
 // Regions ------------------------------------------------------------------------
 var shapes = ['rectangles', 'triangles'];
-var a, b;
+var a, b, c, d;
 for (b = 0; b < 2; b++)
 {
 
@@ -203,9 +203,9 @@ for (a = 0; a < regions[shapes[b]].length; a++)
 	m1_e = m1_e + me.m1e;
 	m2_e = m2_e + me.m2e;
 
-	$("#" + type + "_areas").append("<tr><td>" + shape + "-" + (a+1) + " [" + me.name+ "]</td><td>" + process(me.width) + "</td><td>" + process(me.height) + "</td><td>" + process(me.area) + "</td><td>" + process(me.weight) + "</td><td>" + process(me.v2, false) + "</td><td></td><td></td><td>" + n_force + "</td><td>"  + process(me.v1, false) + "</td></tr>");
-	$("#v_"+ type + "_moments").append("<tr><td>" + shape + "-" + (a+1) + " [" + me.name+ "]</td><td></td><td></td><td>" + process(me.v2, false) + "</td><td>" + process(me.arm_v, false) + "</td><td>" + process(me.m2, false) + "</td><td></td><td></td><td>" + process(m_f, false) + "</td><td>" + process(me.m1, false) + "</td></tr>");
-	$("#v_"+ type + "_moments_e").append("<tr><td>" + shape + "-" + (a+1) + " [" + me.name+ "]</td><td></td><td></td><td>" + process(me.v2, false) + "</td><td>" + process(me.arm_ve, false) + "</td><td>" + process(me.m2e, false) + "</td><td></td><td></td><td>" + process(m_fe, false) + "</td><td>" + process(me.m1e, false) + "</td></tr>");
+	$("#" + type + "_areas").append("<tr><td>" + shape + "-" + (a+1) + " [" + me.name+ "]</td><td>" + process(me.width) + "</td><td>" + process(me.height) + "</td><td>" + process(me.area) + "</td><td>" + process(me.weight) + "</td><td>" + process(me.v2, false) + "</td><td colspan='2'></td><td>" + n_force + "</td><td>"  + process(me.v1, false) + "</td></tr>");
+	$("#v_"+ type + "_moments").append("<tr><td colspan='3'>" + shape + "-" + (a+1) + " [" + me.name+ "]</td><td>" + process(me.v2, false) + "</td><td>" + process(me.arm_v, false) + "</td><td>" + process(me.m2, false) + "</td><td colspan='2'></td><td>" + process(m_f, false) + "</td><td>" + process(me.m1, false) + "</td></tr>");
+	$("#v_"+ type + "_moments_e").append("<tr><td colspan='3'>" + shape + "-" + (a+1) + " [" + me.name+ "]</td><td>" + process(me.v2, false) + "</td><td>" + process(me.arm_ve, false) + "</td><td>" + process(me.m2e, false) + "</td><td colspan='2'></td><td>" + process(m_fe, false) + "</td><td>" + process(me.m1e, false) + "</td></tr>");
 	regions[shapes[b]][a] = me;
 	}
 }
@@ -242,9 +242,9 @@ m_factore = (((surcharge * arme) < 0) ? n_force : p_force);
 m1_e = m1_e + moment * m_factore;
 m2_e = m2_e + moment;
 
-$("#v_forces").append("<tr><td colspan='5'>Surcharge</td><td>" + process(vertical, false) + "</td><td></td><td></td><td>" + process(factor, false) + "</td><td>" + process(vertical * factor, false))
-$("#v_moments").append("<tr><td>Surcharge</td><td></td><td></td><td>" + process(vertical, false) + "</td><td>" + process(arm, false) + "</td><td>" + process(moment, false) + "</td><td></td><td></td><td>" + process(m_factor, false) + "</td><td>" + process(moment * m_factor, false) + "</td></tr>");
-$("#v_moments_e").append("<tr><td>Surcharge</td><td></td><td></td><td>" + process(vertical, false) + "</td><td>" + process(arme, false) + "</td><td>" + process(momente, false) + "</td><td></td><td></td><td>" + process(m_factore, false) + "</td><td>" + process(moment * m_factore, false) + "</td></tr>");
+$("#v_forces").append("<tr><td colspan='5'>Surcharge</td><td>" + process(vertical, false) + "</td><td colspan='2'></td><td>" + process(factor, false) + "</td><td>" + process(vertical * factor, false))
+$("#v_moments").append("<tr><td colspan='3'>Surcharge</td><td>" + process(vertical, false) + "</td><td>" + process(arm, false) + "</td><td>" + process(moment, false) + "</td><td colspan='2'></td><td>" + process(m_factor, false) + "</td><td>" + process(moment * m_factor, false) + "</td></tr>");
+$("#v_moments_e").append("<tr><td colspan='3'>Surcharge</td><td>" + process(vertical, false) + "</td><td>" + process(arme, false) + "</td><td>" + process(momente, false) + "</td><td colspan='2'></td><td>" + process(m_factore, false) + "</td><td>" + process(moment * m_factore, false) + "</td></tr>");
 
 // Forces ------------------------------------------------------
 for (a = 0; a < i.force.length; a++)
@@ -313,9 +313,9 @@ for (a = 0; a < i.force.length; a++)
 		m1_e = m1_e + me.mv1e;
 		m2_e = m2_e + me.mv2e;
 
-		$("#v_forces").append("<tr><td colspan='5'>Force-" + (a+1) + "</td><td>" + process(me.v2, false) + "</td><td></td><td></td><td>" + factor + "</td><td>" + process(me.v1, false) + "</td></tr>");
-		$("#v_moments").append("<tr><td>Force-" + (a+1) + "</td><td></td><td></td><td>" + process(me.v2, false) + "</td><td>" + process(me.arm_v, false) + "</td><td>" + process(me.mv2, false) + "</td><td></td><td></td><td>" + process(m_f, false) + "</td><td>" + process(me.mv1, false) + "</td></tr>");
-		$("#v_moments_e").append("<tr><td>Force-" + (a+1) + "</td><td></td><td></td><td>" + process(me.v2, false) + "</td><td>" + process(me.arm_ve, false) + "</td><td>" + process(me.mv2e, false) + "</td><td></td><td></td><td>" + process(m_fe, false) + "</td><td>" + process(me.mv1e, false) + "</td></tr>");
+		$("#v_forces").append("<tr><td colspan='5'>Force-" + (a+1) + "</td><td>" + process(me.v2, false) + "</td><td colspan='2'></td><td>" + factor + "</td><td>" + process(me.v1, false) + "</td></tr>");
+		$("#v_moments").append("<tr><td colspan='3'>Force-" + (a+1) + "</td><td>" + process(me.v2, false) + "</td><td>" + process(me.arm_v, false) + "</td><td>" + process(me.mv2, false) + "</td><td colspan='2'></td><td>" + process(m_f, false) + "</td><td>" + process(me.mv1, false) + "</td></tr>");
+		$("#v_moments_e").append("<tr><td colspan='3'>Force-" + (a+1) + "</td><td>" + process(me.v2, false) + "</td><td>" + process(me.arm_ve, false) + "</td><td>" + process(me.mv2e, false) + "</td><td colspan='2'></td><td>" + process(m_fe, false) + "</td><td>" + process(me.mv1e, false) + "</td></tr>");
 	}
 	else
 	{
@@ -385,8 +385,8 @@ for (a = 0; a < i.force.length; a++)
 			m2.fav = m2.fav + me.mh2;
 		}
 
-		$("#h_" + desc).append("<tr><td colspan='3'>Force-" + (a+1) + "</td><td>" + process(me.h2, false) + "</td><td></td><td></td><td>" + factor + "</td><td>" + process(me.h1, false) + "</td></tr>");
-		$("#h_moments").append("<tr><td>Force-" + (a+1) + "</td><td></td><td></td><td>" + process(me.h2, false) + "</td><td>" + process(me.arm_h, false) + "</td><td>" + process(me.mh2, false) + "</td><td></td><td></td><td>" + process(m_f, false) + "</td><td>" + process(me.mh1, false) + "</td></tr>");
+		$("#h_" + desc).append("<tr><td colspan='5'>Force-" + (a+1) + "</td><td>" + process(me.h2, false) + "</td><td colspan='2'></td><td>" + factor + "</td><td>" + process(me.h1, false) + "</td></tr>");
+		$("#h_moments").append("<tr><td colspan='3'>Force-" + (a+1) + "</td><td>" + process(me.h2, false) + "</td><td>" + process(me.arm_h, false) + "</td><td>" + process(me.mh2, false) + "</td><td colspan='2'></td><td>" + process(m_f, false) + "</td><td>" + process(me.mh1, false) + "</td></tr>");
 
 		h1[desc] = h1[desc] + me.h1;
 		h2[desc] = h2[desc] + me.h2;
@@ -410,6 +410,13 @@ for (a = 0; a < 2; a++)
 	var store;
 	var store2;
 
+	add_distrib('v_1' + desc);
+	add_distrib('v_2' + desc);
+	add_distrib('h_1' + desc);
+	add_distrib('h_2' + desc);
+
+	add_point('v_1'+ desc, Sv, i['total_' + desc] - c_depth);
+
 	if (i.check_outside && a == 0)
 	{
 		table = i['total_' + desc] + i.base_thickness - i.water_outside;
@@ -427,9 +434,27 @@ for (a = 0; a < 2; a++)
 	{
 		var me = i[desc][b];
 		var o = me.angle * Math.PI / 180;
-		var K = ((a == 0) ? (1-Math.sin(o))/(1+Math.sin(o)) : (1+Math.sin(o))/(1-Math.sin(o)));
 		var o2 = o / 1.25;
-		var K2 = ((a == 0) ? (1-Math.sin(o2))/(1+Math.sin(o2)) : (1+Math.sin(o2))/(1-Math.sin(o2)));
+
+		if (a == 0)
+		{
+			if (i.soil_coefficient == 'a')
+			{
+				var K = (1-Math.sin(o))/(1+Math.sin(o));
+				var K2 = (1-Math.sin(o2))/(1+Math.sin(o2));
+			}
+			else
+			{
+				var K = (1 - Math.sin(o));
+				var K2 = (1 - Math.sin(o2));
+			}
+		}
+		else
+		{
+			var K = (1+Math.sin(o))/(1-Math.sin(o));
+			var K2 = (1+Math.sin(o2))/(1-Math.sin(o2));
+		}
+
 
 		for (c = 0; c < 2; c++)
 		{
@@ -444,6 +469,12 @@ for (a = 0; a < 2; a++)
 			var F2 = ((c==0) ? '' : Sh2);
 			var Sh1 = She1 + u;
 			var Sh2 = She2 + u;
+
+			if (c == 1)
+			{
+				var point = ((a == 0) ? Sv : -Sv);
+				add_point("v_1" + desc, point, i['total_' +desc] - c_depth);
+			}
 
 			if (c == 0)
 			{
@@ -512,6 +543,83 @@ for (a = 0; a < 2; a++)
 	}
 }
 
+var fails = 0;
+
+if (i.mode == 'gravity')
+{
+
+var factors = ['', 'n', 's', 'i', 'h'];
+var pressure = ['c', 'q', 'g'];
+var t = [];
+
+for (a = 0; a < 2; a++)
+{
+// Drained/Undrained
+	var desc = ((a == 0) ? 'd' : 'u');
+
+	for (b = 1; b <= 2; b++)
+	{
+	// Combination 1/2
+
+		var o = ((a == 0) ? ((b == 1) ? i.bearing_angle : i.bearing_angle / 1.25) : 0);
+		o = o * Math.PI / 180;
+		var e = ((b == 1) ? Math.abs(m1_e / v1) : Math.abs(m2_e / v2));
+		var V = ((b == 1) ? Math.abs(v1) : Math.abs(v2));
+		// var H = ((b == 1) ? Math.abs(h1.fav - h1.unfav) : Math.abs(h2.fav - h2.unfav));
+		var H = 0;
+		var h = i.total_cover;
+		var B = i.total_width - 2 * e;
+		var L = i.wall_depth;
+		var A = B * L;
+		var c = ((a == 0) ? 0 : i.bearing_strength);
+		t[desc + '_c' + b] = c;
+		t[desc + '_q' + b] = ((b == 1) ? i.surcharge / p_force : i.surcharge);
+		t[desc + '_g' + b] = ((a == 0) ? 0.5 * (i.bearing_wet_weight - 9.81) * B: 0);
+
+		t[desc + '_nq' + b] = Math.pow(Math.tan(Math.PI / 4 + o/2), 2) * Math.exp(Math.PI * Math.tan(o));
+		t[desc + '_nc' + b] = ((a == 0) ? (t[desc + '_nq' + b] - 1) / Math.tan(o) : 2 + Math.PI);
+		t[desc + '_ng' + b] = 2 * (t[desc + '_nq' + b] + 1) * Math.tan(o);
+		
+		t[desc + '_sc' + b] = 1 + B / L * t[desc + '_nq' + b] / t[desc + '_nc' + b];
+		t[desc + '_sq' + b] = 1 + B / L * Math.tan(o);
+		t[desc + '_sg' + b] = 1 - 0.4 * B / L;
+
+		var temp = ((a == 0) ? (1 - H / (V + A * c / Math.tan(o))) : 1);
+		t[desc + '_iq' + b] = Math.pow(temp, 2);
+		t[desc + '_ig' + b] = Math.pow(temp, 3);
+		t[desc + '_ic' + b] = ((a == 0) ? (Math.pow(temp, 2) - (1 - Math.pow(temp,2)) / (t[desc + '_nc' + b] * Math.tan(o))) : 1 - 2 * H / (A * c * t[desc + '_nc' + b]));
+
+		temp = (((h / B) < 1) ? (h / B) : Math.atan(h / B));
+		t[desc + '_hg' + b] = 1;
+		t[desc + '_hq' + b] = 1 + 2 * Math.tan(o) * Math.pow(1 - Math.sin(o), 2) * temp;
+		t[desc + '_hc' + b] = 1 + 0.4 * temp;
+
+		// Throw back to HTML
+		var sum = 0;
+		for (c = 0; c < pressure.length; c++)
+		{
+			var product = 1;
+			for (d = 0; d < factors.length; d++)
+			{
+				$("#t" + desc + "_" + factors[d] + pressure[c] + b).html(process(t[desc + "_" + factors[d] + pressure[c] + b]));
+
+				product = product * t[desc + "_" + factors[d] + pressure[c] + b];
+			}
+			$("#t" + desc + "_p" + pressure[c] + b).html(process(product));
+			sum = sum + Math.abs(product);
+		}
+		$("#t" + desc + "_cap" + b).html(process(sum));
+
+		var toe = V / (i.total_width * L) * (1 + e * 6 / i.total_width);
+		$("#toe_pressure_" + b).html(process(toe));
+		var text = ((toe <= sum) ? ' [Safe]' : ' [Unsafe]');
+		fails = ((toe <= sum) ? fails : fails + 1);
+		$("#max_" + desc + "_" + b).html(process(sum) + text);
+	}
+}
+
+}
+
 var text='';
 
 $("#v1").html(process(v1,false));
@@ -536,7 +644,6 @@ $("#unfavourable_slide_2").html(process(h2.unfav));
 $("#favourable_slide_1").html(process(h1.fav));
 $("#favourable_slide_2").html(process(h2.fav));
 
-var fails = 0;
 text = ((Math.abs(h1.unfav/h1.fav) <= 1) ? ' [Safe]' : ' [Unsafe]');
 fails = ((text == ' [Unsafe]') ? fails + 1 : fails);
 $("#utilisation_slide_1").html(process(h1.unfav/h1.fav) + text);
@@ -560,16 +667,25 @@ $("#total_vertical_1").html(process(v1));
 $("#total_vertical_2").html(process(v2));
 $("#total_moment_1").html(process(m1_e));
 $("#total_moment_2").html(process(m2_e));
-$("#base_width_1").html(process(i.total_width) + "[" + process(i.total_width/6) + "]");
-$("#base_width_2").html(process(i.total_width) + "[" + process(i.total_width/6) + "]");
+$("#base_width_1").html(process(i.total_width) + " [" + process(i.total_width/6) + "]");
+$("#base_width_2").html(process(i.total_width) + " [" + process(i.total_width/6) + "]");
 
 text = ((Math.abs(m1_e / v1) <= i.total_width/6) ? ' [Safe]' : ' [Unsafe]');
-fails = ((text == ' [Unsafe]') ? fails + 1 : fails);
+fails = ((text == ' [Unsafe]' && i.mode == 'gravity') ? fails + 1 : fails);
 $("#eccentricity_1").html(process(m1_e/v1) + text);
 text = ((Math.abs(m2_e / v2) <= i.total_width/6) ? ' [Safe]' : ' [Unsafe]');
-fails = ((text == ' [Unsafe]') ? fails + 1 : fails);
+fails = ((text == ' [Unsafe]' && i.mode == 'gravity') ? fails + 1 : fails);
 $("#eccentricity_2").html(process(m2_e/v2) + text);
 
 text = ((fails == 0) ? 'Safe' : 'Unsafe - ' + fails + ' fails');
 $("#headline_result").html(text);
+
+var turn_ids = ['headline2', 'vertical', 'eccentricity', 'terzaghi'];
+text = ((i.mode == 'gravity') ? 'block' : 'none')
+
+for (a=0; a < turn_ids.length; a++)
+{
+	$("#" + turn_ids[a])[0].style.display = text;
+}
+
 }

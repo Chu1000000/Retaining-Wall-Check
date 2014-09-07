@@ -20,11 +20,30 @@ function get_inputs()
 {
 	$("#error").html('');
 
-	int_inputs = ['wall_weight', 'stem_height', 'stem_thickness', 'toe_length', 'heel_length', 'base_thickness', 'shear_key_height', 'shear_key_thickness', 'back_steps', 'back_step_run', 'back_step_depth', 'back_angle', 'front_steps', 'front_step_run', 'front_step_depth', 'front_angle', 'water_inside', 'water_outside', 'water_under', 'surcharge'];
-	str_inputs = ['back_detailing', 'front_detailing'];
-	chkbox_inputs = ['shear_key', 'check_inside', 'check_outside', 'check_under'];
-
 	var i = [];
+
+	i.mode = $("#mode").val();
+
+	if (i.mode == 'gravity')
+	{
+
+		int_inputs = ['wall_depth','wall_weight', 'stem_height', 'stem_thickness', 'toe_length', 'heel_length', 'base_thickness', 'shear_key_height', 'shear_key_thickness', 'back_steps', 'back_step_run', 'back_step_depth', 'back_angle', 'front_steps', 'front_step_run', 'front_step_depth', 'front_angle', 'water_inside', 'water_outside', 'water_under', 'surcharge', 'bearing_dry_weight', 'bearing_wet_weight', 'bearing_angle', 'bearing_strength'];
+		str_inputs = ['back_detailing', 'front_detailing', 'soil_coefficient'];
+		chkbox_inputs = ['shear_key', 'check_inside', 'check_outside', 'check_under'];
+	}
+	else
+	{
+		int_inputs = ['sheet_height', 'sheet_moment', 'water_inside', 'water_outside', 'water_under', 'surcharge'];
+		str_inputs = ['soil_coefficient'];
+		chkbox_inputs = ['check_inside', 'check_outside', 'check_under'];
+
+		i.stem_height = 0;
+		i.stem_thickness = 0;
+		i.toe_length = 0;
+		i.heel_length = 0;
+		i.base_thickness = 0;
+	}
+
 	var input;
 
 	for (a=0; a < int_inputs.length; a++)
@@ -43,6 +62,16 @@ function get_inputs()
 		i[input] = ($("#" + input).is(':checked') ? true : false);
 	}
 
+	if (i.mode == 'gravity')
+	{
+		i["total_height"] = i.stem_height + i.base_thickness;
+		i["total_width"] = i.toe_length + i.heel_length + i.stem_thickness;
+	}
+	else
+	{
+		i['total_height'] = i.sheet_height;
+		i['total_width'] = 0;
+	}
 	layer_info = ['depth', 'dry', 'wet', 'angle'];
 	layers = ['retained', 'cover']
 	var j = [];
@@ -96,21 +125,20 @@ function get_inputs()
 	{
 		i.total_retained = i.total_retained + j.retained[a].depth;
 	}
-
-	if (i.total_cover > i.stem_height)
+	// ---- QC -----------------------------------------------------------------
+	if (i.mode == 'gravity')
+	{
+	if ((i.total_cover + i.base_thickness) > i.total_height)
 	{
 		set_error_msg('There is more cover soil than the height of the retaining wall');
 	}
 
-	if (i.total_retained > i.stem_height)
+	if ((i.total_retained + i.base_thickness) > i.total_height)
 	{
 		set_error_msg('There is more retained soil than the height of the retaining wall');
 	}
+	
 
-	i["total_height"] = i.stem_height + i.base_thickness;
-	i["total_width"] = i.toe_length + i.heel_length + i.stem_thickness;
-
-	// ---- QC -----------------------------------------------------------------
 	if (i.shear_key)
 	{
 		if (i.shear_key_thickness > i.total_width)
@@ -208,8 +236,9 @@ function get_inputs()
 			i.front_angle = i.front_angle * Math.PI / 180; 
 		}
 	}
+	}
 
-	if (i.water_under > 0)
+	if (i.check_under === true && i.water_under > 0)
 	{
 		set_error($("#water_under"), 'Water table under base should be less than 0');
 	}
@@ -218,11 +247,11 @@ function get_inputs()
 		set_nonerror($("#water_under"));
 	}
 
-	if (i.water_outside < 0)
+	if (i.check_outside === true && i.water_outside < 0)
 	{
 		set_error($("#water_outside"), 'Water table should be higher');
 	}
-	else if (i.water_outside > i.total_retained)
+	else if (i.check_outside === true && i.water_outside > i.total_retained)
 	{
 		set_error($("#water_outside"), 'Water table should be within soil layers');
 		i.check_outside = false;
@@ -232,11 +261,11 @@ function get_inputs()
 		set_nonerror($("#water_outside"));
 	}
 	
-	if (i.water_inside < 0)
+	if (i.check_inside === true && i.water_inside < 0)
 	{
 		set_error($("#water_inside"), 'Water table should be higher');
 	}	
-	else if (i.water_inside > i.total_cover)
+	else if (i.check_inside === true && i.water_inside > i.total_cover)
 	{
 		set_error($("#water_inside"), 'Water table should be within soil layers');
 		i.check_inside = false;
