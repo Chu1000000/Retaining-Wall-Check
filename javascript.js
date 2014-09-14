@@ -1,5 +1,6 @@
 document.write('<script src="jquery.js"></script>');
 
+
 function set_error_msg (msg)
 {
 	$("#error").html($("#error").html() + msg + ", ");
@@ -276,7 +277,7 @@ function get_inputs()
 	}
 
 	// -- Split soil
-	var table = i.total_retained + i.base_thickness - i.water_outside;
+	var table = i.total_retained - i.water_outside;
 	var c_depth = 0;
 	var boundary = 0;
 	var past = false;
@@ -333,7 +334,7 @@ function get_inputs()
 		i.retained = j.retained;
 	}
 
-	table = i.total_cover + i.base_thickness - i.water_inside;
+	table = i.total_cover - i.water_inside;
 	i.cover = [];
 	c_depth = 0;
 	boundary = 0;

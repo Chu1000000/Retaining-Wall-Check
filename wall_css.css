@@ -42,10 +42,10 @@ span {
 	right: 0px;
 }
 
-#preview {
+#preview, .preview {
 	z-index: 1;
 }
-#graph {
+#graph, .graph {
 	z-index: 2;
 }
 
@@ -131,6 +131,7 @@ select {
 table, #headline {
 	width:95%;
 	border: 1px solid black;
+	white-space:nowrap;
 }
 
 .headline_result {

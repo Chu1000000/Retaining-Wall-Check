@@ -25,7 +25,7 @@
 <nav id="title">
 <article>
 	<h2>Retaining Wall Checks</h2>
-	<pre>by Anthony Chu v2014-09-07</pre>
+	<pre>by Anthony Chu v2014-09-14</pre>
 </article>
 </nav>
 <!-- Input ................................................................ -->
@@ -266,7 +266,7 @@
 	<h2>Water Table</h2>
 	<pre>Stage 5 of 6</pre>
 
-	<p>Position of the water table in relation to the bottom of the retaining wall</p>
+	<p>Position of the water table in relation to the top of the retaining wall</p>
 
 	<input class="inline" type="checkbox" id="check_inside">Inner-side of wall (m):
 	<input type="text" id="water_inside" value="2">
@@ -374,8 +374,11 @@ $("#solve").click(function(){
 		$("#solve_button").html('Edit');
 		$("#input")[0].style.display = 'none';
 		$("#output")[0].style.display = 'block';
+		$("#graph")[0].style.display = 'block';
+
 		calculate();
 		$("#graph_choice").val('none');
+		draw_measurements();
 		document.location.href = "#"; 
 	}
 	else 
@@ -395,40 +398,48 @@ $("#solve").click(function(){
 });
 </script>
 
+
+
 <!-- Output ................................................................... -->
 
 <nav id="output" style="display:none">
 	<article id="results">
 	<select id="graph_choice">
 		<option value="none">None</option>
-		<option value="weights" disabled="true">Weights</option>
-		<option value="v_stress1">Vertical Soil Stress (C1)</option>
-		<option value="v_stress2" disabled="true">Vertical Soil Stress (C2)</option>
-		<option value="h_stress1" disabled="true">Horizontal Soil Stress (C1)</option>
-		<option value="h_stress2" disabled="true">Horizontal Soil Stress (C2)</option></select>
+		<option value="weights">Weights</option>
+		<option value="v_stress">Vertical Soil Stress</option>
+		<option value="h_stress1">Horizontal Soil Stress (C1)</option>
+		<option value="h_stress2">Horizontal Soil Stress (C2)</option></select>
 	<script>
 	$("#graph_choice").change(function(){
 		$("#graph")[0].style.display = 'block';
 
 		var option = $("#graph_choice").val();
+
+		redraw();
+
 		if (option == 'none')
 		{
-			redraw();
-			src2 = '';
-			draw_graph();
+			draw_measurements();
 		}
 		else if (option == 'weights')
 		{
-			redraw();
+			draw_blocks();
 		}
-		else if (option == 'v_stress1')
+		else if (option == 'v_stress')
 		{
-			draw_distrib(graph_switch(), 'v_1');
+			draw_distrib(graph_switch(), ['ve_cover', 've_retained', 'v_cover', 'v_retained'], ['00FF00', '00FF00', 'FF0000', 'FF0000']);
 			draw_graph();
 		}
-		else if (option == 'h_stress')
+		else if (option == 'h_stress1')
 		{
-			redraw('preview', 'sheet');
+			draw_distrib(graph_switch(), ['he_1cover', 'he_1retained', 'h_1cover', 'h_1retained'], ['00FF00', '00FF00', 'FF0000', 'FF0000']);
+			draw_graph();
+		}
+		else if (option == 'h_stress2')
+		{
+			draw_distrib(graph_switch(), ['he_2cover', 'he_2retained', 'h_2cover', 'h_2retained'], ['00FF00', '00FF00', 'FF0000', 'FF0000']);
+			draw_graph();
 		}
 	});
 	</script>
@@ -436,10 +447,13 @@ $("#solve").click(function(){
 	<h2>Results</h2>
 	<p>All results are to 3 s.f, roundings are not carried through calculation process. Positive forces are favourable whilst negative forces are unfavourable. Lever arms are taken as negative for vertical forces for correct sign convention.</p>
 
+	<div id="display_1"></div>
+
 	<h3>Headline Result - <span id="headline_result"></span></h3>
 	<table class="headline_result">
 		<tr class="subtitle"><th colspan="4"><pre><u>Sliding</u></pre></th><th colspan="3">Combination 1</th><th colspan="3">Combination 2</th></tr>
 		<tbody>
+			<tr class="no_border"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 			<tr><td colspan="4">Unfavourable</td><td colspan="3" id="unfavourable_slide_1"></td><td colspan="3" id="unfavourable_slide_2"></td></tr>
 			<tr><td colspan="4">Favourable</td><td colspan="3" id="favourable_slide_1"></td><td colspan="3" id="favourable_slide_2"></td></tr>
 			<tr><td colspan="4">Utilisation Factor</td><td colspan="3" id="utilisation_slide_1"></td><td colspan="3" id="utilisation_slide_2"></td></tr>
@@ -450,10 +464,11 @@ $("#solve").click(function(){
 			<tr><td colspan="4">Favourable</td><td colspan="3" id="favourable_over_1"></td><td colspan="3" id="favourable_over_2"></td></tr>
 			<tr><td colspan="4">Utilisation Factor</td><td colspan="3" id="utilisation_over_1"></td><td colspan="3" id="utilisation_over_2"></td></tr>
 		</tbody>
-	<div id="headline2">
-		<tr class="no_border"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	</table>
+	<table id="headline2" class="headline_result">
 		<tr class="subtitle"><th colspan="4"><pre><u>Eccentricity</u></pre></th><th colspan="3">Combination 1</th><th colspan="3">Combination 2</th></tr>
 		<tbody>
+			<tr class="no_border"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 			<tr><td colspan="4">Total Vertical</td><td colspan="3" id="total_vertical_1"></td><td colspan="3" id="total_vertical_2"></td></tr>
 			<tr><td colspan="4">Total Moment (about centre)</td><td colspan="3" id="total_moment_1"></td><td colspan="3" id="total_moment_2"></td></tr>
 			<tr><td colspan="4">Width [Width / 6]</td><td colspan="3" id="base_width_1"></td><td colspan="3" id="base_width_2"></td></tr>		
@@ -465,18 +480,20 @@ $("#solve").click(function(){
 			<tr><td colspan="4">Allowable Pressure (Drained)</td><td colspan="3" id="max_d_1"></td><td colspan="3" id="max_d_2"></td></tr>
 			<tr><td colspan="4">Allowable Pressure (Undrained)</td><td colspan="3" id="max_u_1"></td><td colspan="3" id="max_u_2"></td></tr>		
 		</tbody>
-	</div>
 	</table>
 
 	<h3>Horizontal Forces</h3>
 	<table>
 	<tr class="subtitle"><th colspan="10"><pre><u>Unfavourable</u></pre></th></tr>
 	<tr class="subtitle"><th colspan="10"><pre>Retained soil - Vertical Stress</pre></th></tr>
+	<tbody><div id="display_2"></div></tbody>
 	<tr><th colspan="4">Layer</th><th>Sv (Top)</th><th>Weight</th><th>Depth</th><th>Sv (bot)</th><th>u</th><th>Sv' (bot)</th>
 	<tbody id="s_retained"></tbody>
 
 	<tr class="subtitle"><th colspan="10"><pre>Retained soil - Horizontal Stress</pre></th></tr>
-	<tr><th>Layer</th><th>Sv'</th><th>K (C2)</th><th>Sh' (C2)</th><th>Sh (C2)</th><th>F (C2)</th><th>K (C1)</th><th>Sh' (C1)</th><th>Sh (C1)</th><th>Factored F (C1)</th></tr>
+	<tbody><tr><td colspan="5"><div id="display_3"></div><td colspan="5"><div id="display_4"></div></td></tbody>
+
+	<tr><th>Layer</th><th>&#963;v'</th><th>K (C2)</th><th>&#963;h' (C2)</th><th>&#963;h (C2)</th><th>F (C2)</th><th>K (C1)</th><th>&#963;h' (C1)</th><th>&#963;h (C1)</th><th>Factored F (C1)</th></tr>
 	<tbody id="h_retained"></tbody>
 	<tr class="subtitle"><th colspan="10"><pre>Point loads</pre></th></tr>
 	<tbody id="h_unfav"></tbody>
@@ -486,11 +503,11 @@ $("#solve").click(function(){
 
 	<tr class="subtitle"><th colspan="10"><pre><u>Favourable</u></pre></th></tr>
 	<tr class="subtitle"><th colspan="10"><pre>Cover soil - Vertical Stress</pre></th></tr>
-	<tr><th colspan="4">Layer</th><th>Sv (Top)</th><th>Weight</th><th>Depth</th><th>Sv (bot)</th><th>u</th><th>Sv' (bot)</th>
+	<tr><th colspan="4">Layer</th><th>&#963;v (Top)</th><th>Weight</th><th>Depth</th><th>&#963;v (bot)</th><th>u</th><th>&#963;v' (bot)</th>
 	<tbody id="s_cover"></tbody>
 
 	<tr class="subtitle"><th colspan="10"><pre>Cover soil - Horizontal Stress</pre></th></tr>
-	<tr><th>Layer</th><th>Sv'</th><th>K (C2)</th><th>Sh' (C2)</th><th>Sh (C2)</th><th>F (C2)</th><th>K (C1)</th><th>Sh' (C1)</th><th>Sh (C1)</th><th>Factored F (C1)</th></tr>
+	<tr><th>Layer</th><th>&#963;v'</th><th>K (C2)</th><th>&#963;h' (C2)</th><th>&#963;h (C2)</th><th>F (C2)</th><th>K (C1)</th><th>&#963;h' (C1)</th><th>&#963;h (C1)</th><th>Factored F (C1)</th></tr>
 	<tbody id="h_cover"></tbody>
 	<tr class="subtitle"><th colspan="10"><pre>Point loads</pre></th></tr>
 	<tr><th colspan='5'>Name</th><th>Force (C2)</th><th colspan="2"></th><th>Factor (C1)</th><th>Factored Force (C1)</th></tr>
@@ -505,6 +522,7 @@ $("#solve").click(function(){
 
 	<h3>Vertical Forces</h3>
 	<table>
+	<tbody><div id="display_5"></div></tbody>
 	<tr class="subtitle"><th colspan="10"><pre><u>Areas, &amp; Weights</u></pre></th></tr>
 	<tr class="subtitle"><th colspan="10"><pre>Wall:</pre></th></tr>
 	<tr><th>Shape</th><th>Width</th><th>Height</th><th>Area</th><th>Density</th><th>Weight (C2)</th><th colspan="2"><th>Factor (C1)</th><th>Factored Weight (C1)</th></tr>
@@ -535,7 +553,7 @@ $("#solve").click(function(){
 
 	<tr class="subtitle"><th colspan="10"><pre><u>Horizontal Forces</u></pre></th></tr>
 	<tr class="subtitle"><th colspan="10"><pre>Soil</pre></th></tr>
-	<tr><th>Layer</th><th>Depth</th><th>Sh Top (C2)</th><th>Sh Bot (C2)</th><th>Moment Arm</th><th>Moment (C2)</th><th>Sh Top (C1)</th><th>Sh Bot (C1)</th><th>Moment Arm</th><th>Factored Moment (C1)</th></tr>
+	<tr><th>Layer</th><th>Depth</th><th>&#963;h Top (C2)</th><th>&#963;h Bot (C2)</th><th>Moment Arm</th><th>Moment (C2)</th><th>&#963;h Top (C1)</th><th>&#963;h Bot (C1)</th><th>Moment Arm</th><th>Factored Moment (C1)</th></tr>
 	<tbody id="m_retained"></tbody>
 	<tbody id="m_cover"></tbody>
 
@@ -561,7 +579,7 @@ $("#solve").click(function(){
 
 	<tr class="subtitle"><th colspan="10"><pre><u>Horizontal Forces</u></pre></th></tr>
 	<tr class="subtitle"><th colspan="10"><pre>Soil</pre></th></tr>
-	<tr><th>Layer</th><th>Depth</th><th>Sh Top (C2)</th><th>Sh Bot (C2)</th><th>Moment Arm</th><th>Moment (C2)</th><th>Sh Top (C1)</th><th>Sh Bot (C1)</th><th>Moment Arm</th><th>Factored Moment (C1)</th></tr>
+	<tr><th>Layer</th><th>Depth</th><th>&#963;h Top (C2)</th><th>&#963;h Bot (C2)</th><th>Moment Arm</th><th>Moment (C2)</th><th>&#963;h Top (C1)</th><th>&#963;h Bot (C1)</th><th>Moment Arm</th><th>Factored Moment (C1)</th></tr>
 	<tbody id="m_retained_e"></tbody>
 	<tbody id="m_cover_e"></tbody>
 
